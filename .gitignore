@@ -141,6 +141,7 @@ webviewer/**
 OUTBOX/
 scripts/Emil_Arch/
 scripts/*.json
+scripts/Personal_Runs/
 scripts/DEM_Analysis_Workflow/2_Blocks/*.json
 scripts/DEM_Analysis_Workflow/3_Blocks/*.json
 scripts/DEM_Analysis_Workflow/Arch/*.json

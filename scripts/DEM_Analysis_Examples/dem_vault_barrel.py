@@ -19,7 +19,7 @@ from compas_dem.viewer import DEMViewer
 # Template
 # =============================================================================
 
-template = BarrelVaultTemplate(length=3, span=7, rise=0.1, vou_length=13)
+template = BarrelVaultTemplate(length=3, span=5, rise=1.0, vou_length=13)
 
 # =============================================================================
 # Model and interactions
@@ -30,8 +30,8 @@ model = BlockModel.from_barrelvault(template)
 model.compute_contacts(tolerance=0.001)
 
 limestone = Stone.from_predefined_material("LimeStone")
-model.add_material(limestone)
 limestone.density = 2400
+model.add_material(limestone)
 model.assign_material(limestone, elements=list(model.elements()))
 
 # =============================================================================
@@ -45,10 +45,22 @@ for node in model.graph.nodes_where(degree=1):
 # =============================================================================
 
 problem = Problem(model)
-problem.add_contact_model("MohrCoulomb", phi=40, c=0)
-problem.add_supports_from_model()
-lmgc90 = Solver.LMGC90(duration=1.0, n_steps=1000)
-solution = problem.solve(lmgc90)
+problem.add_contact_model("MohrCoulomb", mu=0.6, c=0)
+problem.add_supports_from_model(model)
+lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100)
+prd = Solver.PRD()
+dprd = Solver.DPRD()
+cra = Solver.CRA()
+rbe = Solver.RBE()
+problem.solver(dprd)
+
+solution_dprd = model.solve(problem)
+
+problem.solver(lmgc90)
+solution_lmgc90 = model.solve(problem)
+
+problem.solver(rbe)
+solution_rbe = model.solve(problem)
 
 # =============================================================================
 # Viz
@@ -57,5 +69,8 @@ solution = problem.solve(lmgc90)
 viewer = DEMViewer(model)
 
 viewer.setup()
-viewer.add_solution(scale=1)
+viewer.add_solution(solution_dprd, name="DPRD", scale=1)
+viewer.add_solution(solution_lmgc90, name="LMGC90", scale=1)
+viewer.add_solution(solution_rbe, name="RBE", scale=1)
+
 viewer.show()

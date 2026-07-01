@@ -4,7 +4,6 @@ import compas.geometry as cg
 from compas.colors import Color
 from compas.data import Data
 from compas.geometry import Vector
-from compas_cgal.measure import mesh_volume
 from compas_dem.interactions import ContactProperties
 from compas_dem.interactions import JointModel
 from compas_dem.interactions import MohrCoulomb
@@ -16,10 +15,14 @@ from compas_dem.problem.solvers import Solver
 class Problem(Data):
     """Defines a structural problem over a block model.
 
+    The problem is a lightweight data container — it stores boundary conditions
+    and contact properties identified by ``model_id``, but holds no reference
+    to the model itself. Pass the model explicitly when calling :meth:`solve`.
+
     Parameters
     ----------
     model : :class:`compas_dem.models.BlockModel`
-        The discrete element model.
+        The discrete element model. Used only to extract ``model.guid``; not stored.
     name : str, optional
         Name of the problem.
 
@@ -30,96 +33,111 @@ class Problem(Data):
     >>> problem = Problem(model)
     >>> problem.add_gravity()
     >>> problem.add_support(block_index=0)  # doctest: +SKIP
-    >>> result = problem.solve(solver="LMGC90")  # doctest: +SKIP
+    >>> result = problem.solve(solver="LMGC90", model=model)  # doctest: +SKIP
     """
 
     def __init__(self, model: BlockModel, name: Optional[str] = None, **kwargs) -> None:
         super().__init__(name=name)
-        self.model = model
+        self.model_id = str(model.guid)
         self._boundary_conditions = BoundaryConditions()
-        self._blocks: dict[int, object] = {block.graphnode: block for block in model.elements()}
         self._contact_properties = ContactProperties()
-
-        for block in self._blocks.values():
-            if block.material:
-                density = block.material.density
-            else:
-                raise ValueError(f"Block {block.graphnode} has no material assigned, cannot compute mass. Please assign a material with density or set block.mass manually.")
-            volume = mesh_volume(block.modelgeometry.to_vertices_and_faces(True))
-            block.mass = volume * density
+        self._solver = None
 
     @property
     def __data__(self) -> dict:
         return {
             "name": self.name,
-            "model": self.model,
+            "model_id": self.model_id,
             "boundary_conditions": self._boundary_conditions,
             "contact_properties": self._contact_properties,
+            "solver": self._solver,
         }
 
     @classmethod
     def __from_data__(cls, data: dict) -> "Problem":
-        problem = cls(
-            model=data["model"],
-            name=data.get("name"),
-        )
-        problem._boundary_conditions = data["boundary_conditions"]
-        problem._contact_properties = data["contact_properties"]
-        return problem
+        obj = cls.__new__(cls)
+        Data.__init__(obj, name=data.get("name"))
+        obj.model_id = data["model_id"]
+        obj._boundary_conditions = data["boundary_conditions"]
+        obj._contact_properties = data["contact_properties"]
+        obj._solver = data["solver"]
+        return obj
 
     # ============================================================================
     # Pre-visualization utilities
-    # ===========================================================================
-    def inspect_model(self, show_indices: bool = False, show_loads: bool = True) -> None:
-        """
-        Visualize the block model with block indices and point load vectors to assist with defining boundary conditions.
+    # ============================================================================
+
+    def inspect_model(
+        self,
+        model: BlockModel,
+        show_blocks: bool = False,
+        face_indices: bool = True,
+        show_loads: bool = True,
+        grid: bool = False,
+    ) -> None:
+        """Visualize the block model with block indices and point load vectors.
 
         .. danger::
 
            This method is for inspection only. **Comment out or remove
            before solving** — leaving it in will block the solver.
 
-        Returns
-        -------
-        None
+        Parameters
+        ----------
+        model : :class:`compas_dem.models.BlockModel`
+            The model to inspect.
         """
         from compas_viewer.scene import Tag
         from compas_viewer.viewer import Viewer
-        # Add point load and disp viz if not none.
 
         viewer = Viewer()
+        if not grid:
+            viewer.config.renderer.show_grid = False
         if show_loads:
             if not self.boundary_conditions.point_loads:
                 print("No point loads defined in the problem boundary conditions.")
             else:
+                loads_view = viewer.scene.add_group(name="Point Loads")
+                blocks = {block.graphnode: block for block in model.elements()}
                 for loads in self.boundary_conditions.point_loads:
-                    block = self._blocks[loads["block_index"]]
+                    block = blocks[loads["block_index"]]
                     scale = block.modelgeometry.edge_length([0, 1]) / 2
                     force = Vector(*loads["force"])
-                    line = cg.Line(block.point, block.point - force.unitized() * scale)
-
-                    tag = Tag(
-                        f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}]",
-                        block.point,
-                    )
-                    viewer.scene.add(tag, name=f"Block {block.graphnode} Tag", textcolor=Color.red())
-
-                    viewer.scene.add(
+                    point = loads["point"] if loads["point"] is not None else list(block.point)
+                    line = cg.Line(point, [p - f for p, f in zip(point, force.unitized() * scale)])
+                    loads_view.add(
                         line,
-                        name=f"Point Load on Block {block.graphnode}",
+                        name=f"Point Load: [{force.x:.1f}, {force.y:.1f}, {force.z:.1f}] \n Moment: {loads['moment'] if loads['moment'] else [0, 0, 0]}",
                         linewidth=2.5,
                         linecolor=Color.red(),
                     )
 
-        for element in self.model.elements():
-            block_ = viewer.scene.add_group(name=f"Block {element.graphnode}")
-            if show_indices:
-                tag = Tag(str(element.graphnode), element.point)
-                block_.add(tag)
-            block_.add(element.modelgeometry, opacity=0.2, name=f"Block {element.graphnode}")
+        blocks_view = viewer.scene.add_group(name="Blocks")
+
+        for element in model.elements():
+            block_view = viewer.scene.add_group(name=f"Block {element.graphnode}")
+            if show_blocks:
+                blocks_view.add(
+                    element.modelgeometry,
+                    opacity=0.25,
+                    name=f"Block {element.graphnode}",
+                    color=Color.grey(),
+                )
+            if face_indices:
+                for idx in element.modelgeometry.faces():
+                    block_view.add(
+                        element.modelgeometry.face_polygon(idx),
+                        name=f"Face {idx}",
+                        color=Color.grey(),
+                        opacity=0.25,
+                    )
         viewer.show()
 
-        raise ChildProcessError("Model inspection complete. Please comment out or remove the call to inspect_model() proceed.")
+        raise ChildProcessError("Model inspection complete. Please comment out or remove the call to inspect_model() to proceed.")
+
+    # ============================================================================
+    # Boundary conditions
+    # ============================================================================
 
     def add_gravity(self, g: float = 9.81) -> None:
         """Changes applied gravity in the problem boundary conditions.
@@ -143,9 +161,6 @@ class Problem(Data):
 
         .. note::
             This method takes acceleration components, not forces.
-
-        .. tip::
-            Use this to apply uniform extra force on all blocks.
         """
         self._boundary_conditions.add_global_body_force(ax, ay, az)
 
@@ -170,39 +185,38 @@ class Problem(Data):
             Cannot be combined with `point`.
         point : list[float], optional
             Application point [x, y, z]. The equivalent moment at the block
-            centroid is resolved automatically.
+            centroid is resolved at solve time.
+            If ``None``, the load is applied at the block centroid (zero moment).
             Cannot be combined with `moment`.
         loading_type : str, optional
             ``"ramp"`` (default) or ``"instantaneous"``.
-
-        .. note::
-            The loading_type parameter is resloved within the solver.
-            - ``"ramp"`` applies the load gradually over the simulation time.
-            - ``"instantaneous"`` applies the full load from the first timestep.
         """
         self._boundary_conditions.add_point_load(block_index, force, moment, point, loading_type)
 
     def add_surface_load(
         self,
         block_index: int,
-        polygon: cg.Polygon,
-        magnitude: float,
-        direction: Optional[list[float]] = None,
+        face_index: int,
+        load: list[float],
+        loading_type: str = "ramp",
     ) -> None:
-        """Add a distributed pressure load over a polygon on a block face.
+        """Add a distributed pressure load over a block face.
+
+        The equivalent centroidal force and moment are resolved at solve time
+        using the model geometry.
 
         Parameters
         ----------
         block_index : int
             Graph node index of the target block.
-        polygon : :class:`compas.geometry.Polygon`
-            The loaded face polygon picked from the block surface.
-        magnitude : float
-            Pressure magnitude.
-        direction : list[float], optional
-            Unit vector [dx, dy, dz]. Defaults to the polygon outward normal.
+        face_index : int
+            Index of the face on which to apply the load.
+        load : list[float]
+            Load vector [fx, fy, fz].
+        loading_type : str, optional
+            ``"ramp"`` (default) or ``"instantaneous"``.
         """
-        self._boundary_conditions.add_surface_load(block_index, polygon, magnitude, direction)
+        self._boundary_conditions.add_surface_load(block_index, face_index, load, loading_type)
 
     def add_displacement(
         self,
@@ -246,11 +260,10 @@ class Problem(Data):
         block_index : int
             Node index of the block to fix.
         """
-        self._blocks[block_index].is_support = True
         self._boundary_conditions.add_support(block_index)
 
     def add_supports(self, block_indices: list[int]) -> None:
-        """Fix a block — zero translation and zero rotation.
+        """Fix multiple blocks — zero translation and zero rotation.
 
         Parameters
         ----------
@@ -258,12 +271,16 @@ class Problem(Data):
             List of node indices of the blocks to fix.
         """
         for block_index in block_indices:
-            self._blocks[block_index].is_support = True
             self._boundary_conditions.add_support(block_index)
 
-    def add_supports_from_model(self) -> None:
-        """Fix all blocks whose ``is_support`` flag is ``True`` in the block model."""
-        for block in self._blocks.values():
+    def add_supports_from_model(self, model: BlockModel) -> None:
+        """Fix all blocks whose ``is_support`` flag is ``True`` in the block model.
+
+        Parameters
+        ----------
+        model : :class:`compas_dem.models.BlockModel`
+        """
+        for block in model.elements():
             if getattr(block, "is_support", False):
                 self.add_support(block.graphnode)
 
@@ -280,7 +297,7 @@ class Problem(Data):
         for entry in bc.point_loads:
             self.add_point_load(**entry)
         for entry in bc.surface_loads:
-            self.add_surface_load(**entry)
+            self.add_surface_load(entry["block_index"], entry["face_index"], entry["load"], entry["loading_type"])
         for entry in bc.displacements:
             self._boundary_conditions._displacements.append(entry)
 
@@ -288,78 +305,6 @@ class Problem(Data):
     def boundary_conditions(self) -> BoundaryConditions:
         """The boundary condition data attached to this problem."""
         return self._boundary_conditions
-
-    # =============================================================================
-    # Resolved loads and displacements (computed lazily from boundary_conditions)
-    # =============================================================================
-
-    @property
-    def centroidal_loads(self) -> dict[int, dict]:
-        """Resolved (force, moment) pairs at each block centroid."""
-        bc = self._boundary_conditions
-        loads = {
-            idx: {
-                "force": Vector(0, 0, 0),
-                "moment": Vector(0, 0, 0),
-                "loading_type": "ramp",
-            }
-            for idx in self._blocks
-        }
-
-        for acc in bc.body_forces:
-            a_vec = Vector(*acc)
-            for idx, block in self._blocks.items():
-                loads[idx]["force"] += a_vec * block.mass
-
-        for entry in bc.point_loads:
-            idx = entry["block_index"]
-            force = Vector(*entry["force"])
-            if entry["point"] is not None:
-                r = Vector(*entry["point"]) - self._blocks[idx].point
-                moment = Vector(*r.cross(force))
-            elif entry["moment"] is not None:
-                moment = Vector(*entry["moment"])
-            else:
-                moment = Vector(0, 0, 0)
-            loads[idx]["force"] += force
-            loads[idx]["moment"] += moment
-            loads[idx]["loading_type"] = entry["loading_type"]
-
-        for entry in bc.surface_loads:
-            idx = entry["block_index"]
-            polygon = entry["polygon"]
-            magnitude = entry["magnitude"]
-            area = polygon.area
-            barycenter = polygon.centroid
-            direction = Vector(*entry["direction"]) if entry["direction"] is not None else Vector(*polygon.normal)
-            force = direction * (magnitude * area)
-            r = barycenter - self._blocks[idx].point
-            moment = Vector(*r.cross(force))
-            loads[idx]["force"] += force
-            loads[idx]["moment"] += moment
-
-        return loads
-
-    @property
-    def centroidal_displacements(self) -> dict[int, dict]:
-        """Prescribed (translation, rotation) pairs per block index."""
-        displacements = {}
-        for entry in self._boundary_conditions.displacements:
-            idx = entry["block_index"]
-            if idx not in displacements:
-                displacements[idx] = {
-                    "translation": [None, None, None],
-                    "rotation": [None, None, None],
-                }
-            if entry["translation"] is not None:
-                for j, v in enumerate(entry["translation"]):
-                    if v is not None:
-                        displacements[idx]["translation"][j] = v
-            if entry["rotation"] is not None:
-                for j, v in enumerate(entry["rotation"]):
-                    if v is not None:
-                        displacements[idx]["rotation"][j] = v
-        return displacements
 
     # =============================================================================
     # Contact properties
@@ -375,8 +320,7 @@ class Problem(Data):
         Parameters
         ----------
         model : str
-            Contact model type. Supported:
-            - ``"MohrCoulomb"`` - takes phi (deg) or mu, cohesion c, and tension cut-off (optional).
+            Contact model type. Supported: ``"MohrCoulomb"``.
         **kwargs
             Parameters forwarded to the contact model constructor.
 
@@ -409,53 +353,30 @@ class Problem(Data):
     # =============================================================================
     # Solve
     # =============================================================================
+    def solver(self, solver: Solver) -> None:
+        self._solver = solver
 
-    def solve(self, solver: Solver):
-        """Solve the problem using the named solver.
+    # ============================================================================
+    # Validation
+    # ============================================================================
+
+    def check_model_validity(self, model: BlockModel) -> None:
+        """Check that the model is valid for solving.
 
         Parameters
         ----------
-        solver : Solver
-            The solver instance to use.
-
-        Returns
-        -------
-        Solver-specific result object.
+        model : :class:`compas_dem.models.BlockModel`
 
         Raises
         ------
         ValueError
-            If the solver name is not recognised.
+            If the model is invalid.
         """
-        self.check_model_validity()
-        if solver.name == "LMGC90":
-            from compas_dem.analysis.lmgc90 import lmgc90_solve
-
-            params = solver.parameters
-            return lmgc90_solve(self, **{k: v for k, v in params.items() if v is not None})
-        elif solver.name == "CRA":
-            from compas_dem.analysis.cra import cra_solve
-
-            params = solver.parameters
-            return cra_solve(self, **{k: v for k, v in params.items() if v is not None})
-        elif solver.name == "RBE":
-            from compas_dem.analysis.cra import cra_solve
-
-            params = solver.parameters
-            return cra_solve(self, **{k: v for k, v in params.items() if v is not None})
-
-        else:
-            raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE'.")
-
-    def check_model_validity(self) -> None:
-        """Check that the model is valid for solving.
-
-        Raises
-        ------
-        ValueError
-            If the model is invalid
-        """
-        if not list(self.model.supports()):
+        has_supports = any(
+            d.get("translation") == [0.0, 0.0, 0.0] and d.get("rotation") == [0.0, 0.0, 0.0]
+            for d in self._boundary_conditions.displacements
+        ) or any(element.is_support for element in model.elements())
+        if not has_supports:
             raise ValueError("The model has no supports defined. Please add supports before solving.")
         if not self.contact_properties.contact_model:
             raise ValueError("No contact model defined. Please add a contact model before solving.")

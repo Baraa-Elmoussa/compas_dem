@@ -105,6 +105,8 @@ class EdgeContact(Data):
 
     """
 
+    #
+
     def __init__(self, points, frame, forces=None, name=None, **kwargs):
         super().__init__(name=name, **kwargs)
         self._points = [Point(*p) for p in points]

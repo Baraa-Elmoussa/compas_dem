@@ -49,14 +49,15 @@ model.assign_material(stone, elements=list(model.elements()))
 
 problem = Problem(model)
 problem.add_contact_model("MohrCoulomb", mu=0.5, c=0.0)
-problem.add_supports_from_model()
+problem.add_supports_from_model(model)
 rbe_solver = Solver.RBE()
-solution = problem.solve(rbe_solver)
+problem.solver(rbe_solver)
+solution = model.solve(problem)
 
 # =============================================================================
 # Viz
 # =============================================================================
 
 viewer = DEMViewer(model)
-viewer.add_solution()
+viewer.add_solution(solution)
 viewer.show()

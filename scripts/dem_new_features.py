@@ -51,12 +51,13 @@ problem.add_point_load(block_index=70, force=[0, 0, -151500])
 # =============================================================================
 
 lmgc90 = Solver.LMGC90(dt=0.001, n_steps=1000)
-solution = problem.solve(lmgc90)
+problem.solver(lmgc90)
+solution = model.solve(problem)
 
 # =============================================================================
 # Visualize
 # =============================================================================
 
 viewer = DEMViewer(model)
-viewer.add_solution(scale=0.5)
+viewer.add_solution(solution, scale=0.5)
 viewer.show()

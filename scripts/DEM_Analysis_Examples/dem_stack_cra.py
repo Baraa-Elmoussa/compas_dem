@@ -66,19 +66,20 @@ model.assign_material(conc, elements=list(model.elements()))
 
 prob: Problem = Problem(model)
 prob.add_contact_model("MohrCoulomb", mu=0.5, c=0.0)
-prob.add_supports_from_model()
+prob.add_supports_from_model(model)
 
 # =============================================================================
 # Solver
 # =============================================================================
 
 cra: Solver = Solver.CRA()
-prob.solve(cra)
+prob.solver(cra)
+result = model.solve(prob)
 
 # =============================================================================
 # Viz
 # =============================================================================
 
 viewer = DEMViewer(model)
-viewer.add_solution()
+viewer.add_solution(result)
 viewer.show()

@@ -133,29 +133,33 @@ class BoundaryConditions(Data):
     def add_surface_load(
         self,
         block_index: int,
-        polygon: Polygon,
-        magnitude: float,
-        direction: Optional[list[float]] = None,
+        face_index: int,
+        load: list[float],
+        loading_type: str = "ramp",
     ) -> None:
-        """Add a distributed pressure load over a polygon on a block face.
+        """Add a distributed pressure load over a block face.
 
         Parameters
         ----------
         block_index : int
             Graph node index of the target block.
-        polygon : :class:`compas.geometry.Polygon`
-            The loaded face polygon picked from the block surface.
-        magnitude : float
-            Pressure magnitude in [N/m²].
+        face_index : int
+            Index of the face on which to apply the load.
+        load : list[float]
+            Load vector [fx, fy, fz].
         direction : list[float], optional
             Unit vector [dx, dy, dz]. If ``None``, the polygon outward normal is used.
+        loading_type : str, optional
+            Time-series shape used by the solver. ``"ramp"`` (default) ramps
+            from zero to full over the simulation; ``"instantaneous"`` applies
+            the full load at t=0 and releases it at the end.
         """
         self._surface_loads.append(
             {
                 "block_index": block_index,
-                "polygon": polygon,
-                "magnitude": magnitude,
-                "direction": direction,
+                "face_index": face_index,
+                "load": load,
+                "loading_type": loading_type,
             }
         )
 

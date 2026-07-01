@@ -102,6 +102,92 @@ class Solver(Data):
         return self
 
     @classmethod
+    def PRD(
+        cls,
+        linear: bool = True,
+        mu: Optional[float] = None,
+        solver: str = "CLARABEL",
+        non_linear_params: Optional[dict] = None,
+        verbose: bool = False,
+    ):
+        """PRD (Piecewise Rigid Displacement) solver configuration.
+
+        Parameters
+        ----------
+        linear : bool
+            If ``True`` (default), run the one-shot linear LP.
+            If ``False``, run the incremental nonlinear solve.
+        mu : float, optional
+            Friction coefficient. Falls back to the contact model's ``mu`` if not given.
+        solver : str
+            CVXPY back-end solver. Default ``"CLARABEL"``.
+            Other options: ``"MOSEK"``, ``"GUROBI"``, ``"HIGHS"``.
+        non_linear_params : dict, optional
+            Parameters for the incremental nonlinear solve (used when ``linear=False``).
+                {nsteps: 80, open_tol: 1e-3}
+        verbose : bool
+            Print solver output. Default ``False``.
+        """
+        self = cls()
+        self.name = "PRD"
+        self.parameters = {
+            "linear": linear,
+            "mu": mu,
+            "solver": solver,
+            "non_linear_params": non_linear_params or {"nsteps": 80, "open_tol": 1e-3},
+            "verbose": verbose,
+        }
+        return self
+
+    @classmethod
+    def DPRD(
+        cls,
+        linear: bool = True,
+        associative: bool = True,
+        non_associative_params: Optional[dict] = None,
+        non_linear_params: Optional[dict] = None,
+        mu: Optional[float] = None,
+        solver: str = "CLARABEL",
+        verbose: bool = False,
+    ):
+        """DPRD (Dual Piecewise Rigid Displacement) solver configuration.
+
+        Parameters
+        ----------
+        linear : bool
+            If ``True`` (default), run the one-shot linear LP.
+            If ``False``, run the incremental nonlinear solve.
+        associative : bool
+            If ``True`` (default), use associative friction model.
+            If ``False``, use non-associative friction model with parameters in ``non_associative_params``.
+        mu : float, optional
+            Friction coefficient. Falls back to the contact model's ``mu`` if not given.
+        solver : str
+            CVXPY back-end solver. Default ``"CLARABEL"``.
+            Other options: ``"MOSEK"``, ``"GUROBI"``, ``"HIGHS"``.
+        non_linear_params : dict, optional
+            Parameters for the incremental nonlinear solve (used when ``linear=False``).
+                {nsteps: 80, open_tol: 1e-3}
+        non_associative_params : dict, optional
+            Parameters for non-associative friction model (used when ``associative=False``).
+                {mu: 0.6, betta: 0.6, xi: 0.0, gamma: 0.0, c_0k: 1e-5, tol: 1e-3, max_iter: 10}
+        verbose : bool
+            Print solver output. Default ``False``.
+        """
+        self = cls()
+        self.name = "DPRD"
+        self.parameters = {
+            "linear": linear,
+            "associative": associative,
+            "non_associative_params": non_associative_params,
+            "non_linear_params": non_linear_params or {"nsteps": 80, "open_tol": 1e-3},
+            "mu": mu,
+            "solver": solver,
+            "verbose": verbose,
+        }
+        return self
+
+    @classmethod
     def RBE(
         cls,
         verbose: bool = False,

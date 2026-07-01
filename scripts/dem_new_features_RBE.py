@@ -63,12 +63,13 @@ problem.add_support(block_index=9)
 # Select solver and solve.
 # Other solvers include LMGC90 and CRA for now. Others can be added with the provided API.
 solver = Solver.RBE(verbose=True)
-solution = problem.solve(solver)
+problem.solver(solver)
+solution = model.solve(problem)
 
 # =============================================================================
 # Visualize
 # =============================================================================
 
 viewer = DEMViewer(model)
-viewer.add_solution(scale=0.5)
+viewer.add_solution(solution, scale=0.5)
 viewer.show()

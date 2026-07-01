@@ -423,3 +423,55 @@ class BlockModel(Model):
         contacttype: Type[Contact] = FrictionContact,
     ) -> None:
         return super().compute_contacts(tolerance, minimum_area, contacttype)
+
+    # ============================================================================
+    # Solve
+    # ============================================================================
+
+    def solve(self, problem):
+        """Solve the problem using the named solver.
+
+        Parameters
+        ----------
+        solver : Solver
+            The solver instance to use.
+        model : :class:`compas_dem.models.BlockModel`
+            The block model to solve against.
+
+        Returns
+        -------
+        Solver-specific result object.
+
+        Raises
+        ------
+        ValueError
+            If the solver name is not recognised.
+        """
+
+        if problem._solver is None:
+            raise ValueError("No solver configured. Call problem.solver(Solver.LMGC90(...)) before solving.")
+        problem.check_model_validity(self)
+        solver = problem._solver
+        params = {k: v for k, v in solver.parameters.items() if v is not None}
+        if solver.name == "LMGC90":
+            from compas_dem.analysis.lmgc90 import lmgc90_solve
+
+            return lmgc90_solve(problem, self, **params)
+        elif solver.name == "CRA":
+            from compas_dem.analysis.cra import cra_solve
+
+            return cra_solve(problem, self, **params)
+        elif solver.name == "RBE":
+            from compas_dem.analysis.cra import cra_solve
+
+            return cra_solve(problem, self, **params)
+        elif solver.name == "PRD":
+            from compas_dem.analysis.prd import prd_solve
+
+            return prd_solve(problem, self, **params)
+        elif solver.name == "DPRD":
+            from compas_dem.analysis.dprd import dprd_solve
+
+            return dprd_solve(problem, self, **params)
+        else:
+            raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', 'CRA', 'RBE', 'PRD', 'DPRD'.")
