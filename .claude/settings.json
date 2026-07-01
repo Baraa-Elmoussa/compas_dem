@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(//Users/belmoussa/My_Files/Compas_Libs/Masonry_DEM/src/masorny_dem/contacts/**)",
-      "Read(//Users/belmoussa/My_Files/Compas_Libs/Masonry_DEM/src/masorny_dem/solver/**)",
-      "Read(//Users/belmoussa/My_Files/Compas_Libs/Masonry_DEM/src/masorny_dem/viewer/**)"
-    ]
-  }
-}
