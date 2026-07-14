@@ -372,10 +372,9 @@ class Problem(Data):
         ValueError
             If the model is invalid.
         """
-        has_supports = any(
-            d.get("translation") == [0.0, 0.0, 0.0] and d.get("rotation") == [0.0, 0.0, 0.0]
-            for d in self._boundary_conditions.displacements
-        ) or any(element.is_support for element in model.elements())
+        has_supports = any(d.get("translation") == [0.0, 0.0, 0.0] and d.get("rotation") == [0.0, 0.0, 0.0] for d in self._boundary_conditions.displacements) or any(
+            element.is_support for element in model.elements()
+        )
         if not has_supports:
             raise ValueError("The model has no supports defined. Please add supports before solving.")
         if not self.contact_properties.contact_model:

@@ -70,6 +70,7 @@ def lmgc90_solve(
     theta: float = 0.7,
     urf_threshold: float = None,
     track_block: int = None,
+    verbose: int = 0,
 ) -> Solver:
     """Translate a Problem into a configured LMGC90 Solver. Run the simulation and
     post-process results back into the BlockModel in-place.
@@ -573,6 +574,5 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem, model: BlockMode
 
         else:
             print(f"Warning: contact between bodies {u} and {v} has no contact points.")
-
 
     return results

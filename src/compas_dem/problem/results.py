@@ -105,6 +105,10 @@ class Results(Data):
         """Yield edges where ``edge_contact`` is ``True``."""
         return [e for e in self.edges() if self.edge_contact(e)]
 
+    def point_contact_edges(self):
+        """Yield edges where ``point_contact`` is ``True``."""
+        return [e for e in self.edges() if self.point_contact(e)]
+
     # =========================================================================
     # Named node accessors
     # =========================================================================
@@ -150,6 +154,17 @@ class Results(Data):
     def contact_polygon(self, edge: tuple):
         """Return the contact :class:`compas.geometry.Polygon` for the edge."""
         return self.edge_attribute(edge, "contact_polygon")
+
+    def contact_geometry(self, edge: tuple):
+        """Return the geometry matching the contact class of the edge.
+
+        A :class:`compas.geometry.Polygon` for a face contact, a
+        :class:`compas.geometry.Line` (between the two contact points) for an
+        edge contact, or a :class:`compas.geometry.Point` for a vertex/point
+        contact. Dispatch on :meth:`face_contact` / :meth:`edge_contact` /
+        :meth:`point_contact` to know which type to expect.
+        """
+        return self.edge_attribute(edge, "contact_geometry")
 
     def contact_frame(self, edge: tuple):
         """Return the contact :class:`compas.geometry.Frame` for the edge."""

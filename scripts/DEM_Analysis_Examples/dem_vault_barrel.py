@@ -47,20 +47,24 @@ for node in model.graph.nodes_where(degree=1):
 problem = Problem(model)
 problem.add_contact_model("MohrCoulomb", mu=0.6, c=0)
 problem.add_supports_from_model(model)
-lmgc90 = Solver.LMGC90(duration=1.0, n_steps=100)
+lmgc90 = Solver.LMGC90(duration=0.2, n_steps=100, urf_threshold=1e-3, theta=0.7)
 prd = Solver.PRD()
 dprd = Solver.DPRD()
 cra = Solver.CRA()
 rbe = Solver.RBE()
-problem.solver(dprd)
 
-solution_dprd = model.solve(problem)
+problem.solver(dprd)
+solution_dprd = model.solve(problem).copy()
 
 problem.solver(lmgc90)
-solution_lmgc90 = model.solve(problem)
+solution_lmgc90 = model.solve(problem).copy()
 
 problem.solver(rbe)
-solution_rbe = model.solve(problem)
+solution_rbe = model.solve(problem).copy()
+
+
+# problem.solver(cra)
+# solution_cra = model.solve(problem).copy()
 
 # =============================================================================
 # Viz
@@ -72,5 +76,5 @@ viewer.setup()
 viewer.add_solution(solution_dprd, name="DPRD", scale=1)
 viewer.add_solution(solution_lmgc90, name="LMGC90", scale=1)
 viewer.add_solution(solution_rbe, name="RBE", scale=1)
-
+# viewer.add_solution(solution_cra, name="CRA", scale=1)
 viewer.show()

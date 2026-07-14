@@ -3,13 +3,15 @@ from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
 from compas_dem.templates import ArchTemplate
+from compas_dem.utilities import find_load_multiplier
+from compas_dem.utilities import plot_safety_diagram
 from compas_dem.viewer import DEMViewer
 
 # =============================================================================
 # Template
 # =============================================================================
 
-template = ArchTemplate(rise=4.393, span=21.213, thickness=0.5, depth=3.0, n=30)
+template = ArchTemplate(rise=4.393, span=21.213, thickness=0.5, depth=3.0, n=100)
 
 # =============================================================================
 # Model
@@ -61,10 +63,9 @@ result_prd = result.copy()
 # =============================================================================
 # Viz
 # =============================================================================
-from compas_dem.utilities import plot_safety_diagram, find_load_multiplier
 
-lam, result_max = find_load_multiplier(problem, model, prd, live_loads=[[20, [0, 0, -1]]], lam_start=1.0, tol=1e-3, max_iter=30, verbose=True)
-plot_safety_diagram(result, show=True)
+lam, result_max = find_load_multiplier(problem, model, prd, live_loads=[[20, [0, 0, -1]]], lam_start=150000.0, tol=1e-3, max_iter=30, verbose=True)
+plot_safety_diagram(result_max, show=True)
 viewer = DEMViewer(model)
 
 viewer.add_solution(result_prd, name="PRD", scale=0.5)

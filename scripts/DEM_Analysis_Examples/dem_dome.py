@@ -42,7 +42,7 @@ model.assign_material(stone, elements=list(model.elements()))
 problem = Problem(model)
 problem.add_contact_model("MohrCoulomb", mu=0.5, c=0.0)
 problem.add_supports_from_model(model)
-rbe_solver = Solver.LMGC90()
+rbe_solver = Solver.LMGC90(duration=0.2, n_steps=100, urf_threshold=1e-3, theta=0.7)
 problem.solver(rbe_solver)
 solution = model.solve(problem)
 

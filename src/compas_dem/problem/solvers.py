@@ -34,6 +34,7 @@ class Solver(Data):
         urf_threshold: Optional[float] = None,
         track_block: Optional[int] = None,
         contact_law: str = "IQS_CLB",
+        verbose: int = 0,
     ):
         """
         LMGC90 solver configuration.
@@ -65,6 +66,7 @@ class Solver(Data):
             "urf_threshold": urf_threshold,
             "track_block": track_block,
             "contact_law": contact_law,
+            "verbose": verbose,
         }
         return self
 

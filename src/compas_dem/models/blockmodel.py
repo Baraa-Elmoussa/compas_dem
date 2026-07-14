@@ -433,14 +433,12 @@ class BlockModel(Model):
 
         Parameters
         ----------
-        solver : Solver
-            The solver instance to use.
-        model : :class:`compas_dem.models.BlockModel`
-            The block model to solve against.
+        problem : Problem
+            The problem instance to solve.
 
         Returns
         -------
-        Solver-specific result object.
+        Result class object.
 
         Raises
         ------

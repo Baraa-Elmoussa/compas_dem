@@ -57,12 +57,17 @@ class VertexContact(Data):
 
     """
 
+    # NOTE: Vertex contacts might not need a frame, just keep three components of forces in
+    # global XYZ with a point of application. But a frame is useful for visualizing the forces
+    # in a local coordinate system.
+
     @property
     def __data__(self) -> dict:
         return {
             "point": self._point,
             "frame": self._frame,
             "name": self.name,
+            "forces": self._forces,
         }
 
     def __init__(
@@ -70,10 +75,12 @@ class VertexContact(Data):
         point: Point,
         frame: Frame = None,
         name: Optional[str] = None,
+        forces: Optional[list[dict[str, float]]] = None,
     ):
         super().__init__(name)
         self._point = point
         self._frame = frame
+        self._forces = forces or []
 
     @property
     def point(self) -> Point:
@@ -82,6 +89,10 @@ class VertexContact(Data):
     @property
     def frame(self) -> Optional[Frame]:
         return self._frame
+
+    @property
+    def forces(self) -> list[dict[str, float]]:
+        return self._forces
 
     @property
     def geometry(self):
