@@ -8,6 +8,7 @@ from compas_dem.analysis.resolve import resolve_centroidal_displacements
 from compas_dem.analysis.resolve import resolve_centroidal_loads
 from compas_dem.interactions import EdgeContact
 from compas_dem.interactions import FrictionContact
+from compas_dem.interactions import VertexContact
 from compas_dem.models import BlockModel
 from compas_dem.problem.problem import Problem
 from compas_dem.problem.results import Results
@@ -431,6 +432,95 @@ def lmgc90_solve(
 #         print(f"Added {Added_Edges} edges to the model graph to account for contacts without existing edges.")
 
 
+def _contact_axes(result, p: int) -> tuple:
+    """Return ``(t1, t2, n)`` for contact point ``p``, ordered so that ``t1 x t2 == n``.
+
+    LMGC90's local frame is ``(t, n, s)`` with ``t x n == s``, hence ``t x s == -n``.
+    Using LMGC90's ``s`` directly as the frame y-axis therefore yields a frame whose
+    z-axis is *minus* the contact normal. We instead take ``t2 = n x t``, which is
+    exactly ``-s``, so the resulting frame has ``zaxis == n`` as every consumer
+    (:class:`FrictionContact`, :class:`EdgeContact`, the viewer) expects.
+    """
+    n = cg.Vector(*result.interaction_normals[p])
+    t1 = cg.Vector(*result.interaction_tangent1[p])
+    t2 = n.cross(t1).unitized()  # == -interaction_tangent2[p]
+    return t1, t2, n
+
+
+def _contact_forces(result, p: int) -> dict:
+    """Return the force at contact point ``p`` in the frame built by :func:`_contact_axes`.
+
+    LMGC90 reports ``rloc = (Ft, Fn, Fs)`` in its own ``(t, n, s)`` frame, and
+    ``Ft*t + Fn*n + Fs*s`` reproduces ``interaction_force_global`` exactly. Since the
+    frame's y-axis is ``-s``, the component along it is ``-Fs``; the components along
+    ``t`` and ``n`` are taken as-is.
+    """
+    Ft, Fn, Fs = result.interaction_rloc[p]
+    return {"c_np": max(Fn, 0.0), "c_nn": max(-Fn, 0.0), "c_u": Ft, "c_v": -Fs}
+
+
+def _process_contact_points(result, points: list) -> list[dict]:
+    """Return a list of dicts containing contact point data for the given LMGC90 contact indices.
+
+    Each dict contains:
+        - "point": :class:`compas.geometry.Point` of the contact point
+        - "indices": list of LMGC90 contact indices that coincide at this point
+        - "fn": net normal force (positive = tension, negative = compression)
+        - "c_u": tangential force along t1
+        - "c_v": tangential force along t2
+    """
+    merged: list[dict] = []
+    for p in points:
+        pt = cg.Point(*result.interaction_coords[p])
+        f = _contact_forces(result, p)
+        entry = next((m for m in merged if m["point"] == pt), None)
+        if entry is None:
+            merged.append(
+                {
+                    "point": pt,
+                    "indices": [p],
+                    "fn": f["c_np"] - f["c_nn"],
+                    "c_u": f["c_u"],
+                    "c_v": f["c_v"],
+                }
+            )
+        else:
+            entry["indices"].append(p)
+            entry["fn"] += f["c_np"] - f["c_nn"]
+            entry["c_u"] += f["c_u"]
+            entry["c_v"] += f["c_v"]
+
+    for m in merged:
+        m["forces"] = {
+            "c_np": max(m["fn"], 0.0),
+            "c_nn": max(-m["fn"], 0.0),
+            "c_u": m["c_u"],
+            "c_v": m["c_v"],
+        }
+    return merged
+
+
+def _local_resultant(merged: list[dict]) -> np.ndarray:
+    """Return a contact's resultant force in its own frame, as ``[Fu, Fv, Fn]``.
+
+    Parameters
+    ----------
+    merged : list[dict]
+        Contact points as returned by :func:`_process_contact_points`.
+
+    Returns
+    -------
+    ``[Fu, Fv, Fn]``, or a zero vector if the contact carries no points.
+    """
+    if not merged:
+        return [0, 0, 0]
+    return [
+        sum(m["c_u"] for m in merged),
+        sum(m["c_v"] for m in merged),
+        sum(m["fn"] for m in merged),
+    ]
+
+
 def _post_processing_lmgc90(solver: "Solver", problem: Problem, model: BlockModel) -> Results:
     """Build a standalone :class:`~compas_dem.problem.Results` from LMGC90 solver output.
 
@@ -454,6 +544,10 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem, model: BlockMode
     contact_data = solver.get_contacts()
     result = solver.last_result
 
+    # LMGC90 body ids are 1-based indices into ``model.elements()``; the graph node
+    # of an element is not guaranteed to be that same index.
+    lmgc_to_graphnode = {i: el.graphnode for i, el in enumerate(elements)}
+
     # ------------------------------------------------------------------
     # Node data — block transformations
     # ------------------------------------------------------------------
@@ -464,19 +558,15 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem, model: BlockMode
         T = cg.Transformation.from_frame_to_frame(block.init_frame, new_frame)
         results.set_node(block.graphnode, "transformation", T)
 
+    # LMGC90 key -> Results key. ``force_tangent2`` is written separately below: LMGC90
+    # reports it along ``s``, while the contact frame stored here uses ``-s`` as y-axis.
     _per_point_keys = [
         "contact_points",
-        "force_normal",
-        "force_tangent1",
-        "force_tangent2",
         "gaps",
         "status",
     ]
     _new_key_name = [
-        "contact_point",
-        "force_normal",
-        "force_tangent1",
-        "force_tangent2",
+        "contact_points",
         "gap",
         "status",
     ]
@@ -484,7 +574,7 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem, model: BlockMode
     # Group solver contact indices by body pair
     contact_groups: dict[tuple, list] = {}
     for i in range(len(result.interaction_coords)):
-        body_pair = tuple(sorted(b - 1 for b in result.interaction_bodies[i]))
+        body_pair = tuple(sorted(lmgc_to_graphnode[b - 1] for b in result.interaction_bodies[i]))
         if body_pair not in contact_groups:
             contact_groups[body_pair] = []
         contact_groups[body_pair].append(i)
@@ -513,64 +603,76 @@ def _post_processing_lmgc90(solver: "Solver", problem: Problem, model: BlockMode
         results.set_edge(edge, "point_contact", False)
         results.set_edge(edge, "edge_contact", False)
 
+        # Coincident interactions are merged first, so that every per-point array below
+        # and the contact object's own points stay the same length.
+        lmgc90_contacts = _process_contact_points(result, points)
+        if len(lmgc90_contacts) != len(points):
+            results.metadata.setdefault("merged_contacts", {})[f"{edge[0]},{edge[1]}"] = [len(points), len(lmgc90_contacts)]
+
+        # ``gap`` and ``status`` describe the interaction itself, so a merged point takes
+        # them from its first constituent. Force components are summed over the merge.
         for k, name in zip(_per_point_keys, _new_key_name):
-            results.set_edge(edge, name, [contact_data[k][i] for i in points])
+            results.set_edge(edge, name, [contact_data[k][m["indices"][0]] for m in lmgc90_contacts])
+        results.set_edge(edge, "contact_points", [list(m["point"]) for m in lmgc90_contacts])
+        results.set_edge(edge, "force_normal", [m["fn"] for m in lmgc90_contacts])
+        results.set_edge(edge, "force_tangent1", [m["c_u"] for m in lmgc90_contacts])
+        results.set_edge(edge, "force_tangent2", [m["c_v"] for m in lmgc90_contacts])
 
-        results.set_edge(
-            edge,
-            "force_magnitude",
-            float(np.linalg.norm(np.sum([result.interaction_force_magnitude[p] for p in points], axis=0))),
-        )
-        results.set_edge(edge, "force_vector", [list(result.interaction_force_global[p]) for p in points])
-        results.set_edge(edge, "force", np.sum([result.interaction_force_global[p] for p in points], axis=0).tolist())
+        # ``interaction_force_global`` is the force on the *candidate* body of each
+        # interaction. Record which node that is so the sign of "force" is unambiguous,
+        # and flip any point whose candidate is the other node before summing.
+        def _signed(p):
+            sign = 1.0 if lmgc_to_graphnode[result.interaction_bodies[p][0] - 1] == edge[0] else -1.0
+            return sign * np.asarray(result.interaction_force_global[p], dtype=float)
 
-        contact_frames = [
-            cg.Frame(
-                point=cg.Point(*result.interaction_coords[p]),
-                xaxis=cg.Vector(*result.interaction_tangent1[p]),
-                yaxis=cg.Vector(*result.interaction_normals[p]),
-            )
-            for p in points
-        ]
+        force_vectors = [np.sum([_signed(p) for p in m["indices"]], axis=0).tolist() for m in lmgc90_contacts]
+        resultant = np.sum(force_vectors, axis=0)
+
+        local_resultant = _local_resultant(lmgc90_contacts)
+        results.set_edge(edge, "resultant_local", local_resultant)
+        # results.set_edge(edge, "force_on_node", edge[0])
+        results.set_edge(edge, "force_vector", force_vectors)
+        results.set_edge(edge, "resultant_global", resultant.tolist())
+        # Magnitude of the resultant, consistent with "force" and with the other backends.
+        results.set_edge(edge, "force_magnitude", float(np.linalg.norm(resultant)))
+        results.set_edge(edge, "nodal_force_magnitudes", [float(np.linalg.norm(f)) for f in force_vectors])
+
+        contact_frames = [cg.Frame(m["point"], *_contact_axes(result, m["indices"][0])[:2]) for m in lmgc90_contacts]
+        results.set_edge(edge, "contact_frames", contact_frames)
         results.set_edge(edge, "contact_frame", contact_frames[0])
 
-        polygon_pts = [result.interaction_coords[p] for p in points]
-        # Read from results (not graph) — these were just written above
-        contact_frame_0 = results._edge_data[f"{edge[0]},{edge[1]}"]["contact_frame"]
+        contact_pts = [m["point"] for m in lmgc90_contacts]
+        forces = [m["forces"] for m in lmgc90_contacts]
+        t1, t2, _ = _contact_axes(result, points[0])
 
-        if len(polygon_pts) >= 3:
-            results.set_edge(edge, "contact_polygon", cg.Polygon(polygon_pts))
+        if len(contact_pts) >= 3:
+            results.set_edge(edge, "contact_polygon", cg.Polygon(contact_pts))
             results.set_edge(edge, "face_contact", True)
-            fc = FrictionContact(points=[cg.Point(*p) for p in polygon_pts])
-            lmgc_tangent = cg.Vector(*result.interaction_tangent1[points[0]])
-            lmgc_normal = cg.Vector(*result.interaction_normals[points[0]])
-            lmgc_tangent2 = lmgc_normal.cross(lmgc_tangent).unitized()
-            fc._frame = cg.Frame(contact_frame_0.point, lmgc_tangent, lmgc_tangent2)
-            for p in points:
-                Ft, Fn, Fs = result.interaction_rloc[p]
-                fc.forces.append({"c_np": max(Fn, 0), "c_nn": max(-Fn, 0), "c_u": -Ft, "c_v": -Fs})
+            fc = FrictionContact(points=contact_pts)
+            fc._frame = cg.Frame(contact_frames[0].point, t1, t2)
+            fc.forces = forces
             results.set_edge(edge, "contact_data", fc)
 
-        elif len(polygon_pts) == 2:
-            print(f"Edge contact between bodies {u} and {v} with contact points {polygon_pts}. Setting edge_contact=True.")
-            lmgc_tangent = cg.Vector(*result.interaction_tangent1[points[0]])
-            lmgc_tangent2 = cg.Vector(*result.interaction_tangent2[points[0]])
+        elif len(contact_pts) == 2:
+            line = cg.Line(contact_pts[0], contact_pts[1])
             ec = EdgeContact(
-                points=[cg.Point(*p) for p in polygon_pts],
-                frame=cg.Frame(
-                    cg.Line(cg.Point(*polygon_pts[0]), cg.Point(*polygon_pts[1])).midpoint,
-                    lmgc_tangent,
-                    lmgc_tangent2,
-                ),
+                points=contact_pts,
+                frame=cg.Frame(line.midpoint, t1, t2),
+                forces=forces,
             )
-            for p in points:
-                Ft, Fn, Fs = result.interaction_rloc[p]
-                ec.forces.append({"c_np": max(Fn, 0), "c_nn": max(-Fn, 0), "c_u": -Ft, "c_v": -Fs})
             results.set_edge(edge, "edge_contact", True)
             results.set_edge(edge, "contact_data", ec)
+            results.set_edge(edge, "contact_geometry", line)
 
-        elif len(polygon_pts) == 1:
+        elif len(contact_pts) == 1:
             results.set_edge(edge, "point_contact", True)
+            vc = VertexContact(
+                point=contact_pts[0],
+                frame=cg.Frame(contact_pts[0], t1, t2),
+                forces=forces,
+            )
+            results.set_edge(edge, "contact_data", vc)
+            results.set_edge(edge, "contact_geometry", contact_pts[0])
 
         else:
             print(f"Warning: contact between bodies {u} and {v} has no contact points.")

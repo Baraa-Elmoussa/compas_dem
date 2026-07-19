@@ -146,3 +146,6 @@ scripts/DEM_Analysis_Workflow/2_Blocks/*.json
 scripts/DEM_Analysis_Workflow/3_Blocks/*.json
 scripts/DEM_Analysis_Workflow/Arch/*.json
 scripts/DEM_Analysis_Workflow/Barrel_Vault/*.json
+
+# excluded package utilities
+src/compas_dem/utilities/

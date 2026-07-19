@@ -135,6 +135,10 @@ class DEMViewer(Viewer):
         super().__init__(config=config)
         self.model = model
         self.groups = {}
+        self._info_treeform = None
+        # display scale for force vectors (model length per N); computed once by the
+        # first add_solution call and reused so overlaid solutions are comparable
+        self._dem_force_scale_per_newton = None
 
     # def add_formdiagram(self, formdiagram: FormDiagram, maxradius=50, minradius=10):
     #     formgroup = self.scene.add_group(name="FormDiagram")
@@ -174,18 +178,10 @@ class DEMViewer(Viewer):
 
     def _setup_groups(self):
         self.groups["model"] = self.scene.add_group(name="Model")
-        self.groups["supports"] = self.scene.add_group(
-            name="Supports", parent=self.groups["model"]
-        )
-        self.groups["blocks"] = self.scene.add_group(
-            name="Blocks", parent=self.groups["model"]
-        )
-        self.groups["contacts"] = self.scene.add_group(
-            name="Contacts", parent=self.groups["model"], show=False
-        )
-        self.groups["interactions"] = self.scene.add_group(
-            name="Interactions", parent=self.groups["model"], show=False
-        )
+        self.groups["supports"] = self.scene.add_group(name="Supports", parent=self.groups["model"])
+        self.groups["blocks"] = self.scene.add_group(name="Blocks", parent=self.groups["model"])
+        self.groups["contacts"] = self.scene.add_group(name="Contacts", parent=self.groups["model"], show=False)
+        self.groups["interactions"] = self.scene.add_group(name="Interactions", parent=self.groups["model"], show=False)
 
     # =============================================================================
     # Blocks and Contacts
@@ -221,9 +217,7 @@ class DEMViewer(Viewer):
         for contact in self.model.contacts():
             geometry = contact.polygon
             color = self.interfacecolor
-            parent.add(
-                geometry, linewidth=1, surfacecolor=color, linecolor=color.contrast
-            )  # type: ignore
+            parent.add(geometry, linewidth=1, surfacecolor=color, linecolor=color.contrast)  # type: ignore
 
     # =============================================================================
     # Graph
@@ -232,14 +226,9 @@ class DEMViewer(Viewer):
     def _add_graph(self):
         parent: Group = self.groups["interactions"]
 
-        node_point = {
-            node: self.model.graph.node_element(node).point
-            for node in self.model.graph.nodes()
-        }  # type: ignore
+        node_point = {node: self.model.graph.node_element(node).point for node in self.model.graph.nodes()}  # type: ignore
         points = list(node_point.values())
-        lines = [
-            cg.Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()
-        ]
+        lines = [cg.Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()]
 
         nodegroup = self.scene.add_group(name="Nodes", parent=parent)  # type: ignore
         edgegroup = self.scene.add_group(name="Edges", parent=parent)  # type: ignore
@@ -247,9 +236,7 @@ class DEMViewer(Viewer):
         nodegroup.add_from_list(points, pointsize=10, pointcolor=self.graphnodecolor)  # type: ignore
         edgegroup.add_from_list(lines, linewidth=1, linecolor=self.graphedgecolor)  # type: ignore
 
-    def add_solution(
-        self, results: Results, name: str = "Solution", scale: float = 1.0
-    ):
+    def add_solution(self, results: Results, name: str = "Solution", scale: float = 1.0):
         """Add a solved :class:`~compas_dem.problem.Results` to the viewer.
 
         Parameters
@@ -261,61 +248,45 @@ class DEMViewer(Viewer):
         scale : float, optional
             Scaling factor for force vectors. Adjust to match force magnitudes to geometry.
         """
-        try:
-            from compas_viewer.components import Treeform
+        if self._info_treeform is None:
+            try:
+                from compas_viewer.components import Treeform
 
-            self.ui.sidebar.show_objectsetting = False
-            info_treeform = Treeform()
-            self.ui.sidebar.add(info_treeform)
+                self.ui.sidebar.show_objectsetting = False
+                info_treeform = Treeform()
+                self.ui.sidebar.add(info_treeform)
+                self._info_treeform = info_treeform
 
-            def on_scene_selected(_, node):
-                data = node.attributes.get("data")
-                info_treeform.update_from_dict(data or {})
+                def on_scene_selected(_, node):
+                    data = node.attributes.get("data")
+                    info_treeform.update_from_dict(data or {})
+                    info_treeform.widget.expandAll()
 
-            self.ui.sidebar.sceneform.action = on_scene_selected
-        except Exception:
-            print(
-                "Warning: compas_viewer.components.Treeform not available. Sidebar info panel will not be displayed."
-            )
-            pass
+                self.ui.sidebar.sceneform.action = on_scene_selected
+            except Exception:
+                print("Warning: compas_viewer.components.Treeform not available. Sidebar info panel will not be displayed.")
 
         moved_blocks = []
 
         solution_group = self.scene.add_group(name=name)
-        updated_blocks = self.scene.add_group(
-            name="Updated_Blocks", parent=solution_group
-        )
+        updated_blocks = self.scene.add_group(name="Updated_Blocks", parent=solution_group)
         resultant_forces = self.scene.add_group(name="Forces", parent=solution_group)
-        face_contacts = self.scene.add_group(
-            name="Contact_Polygons", parent=solution_group
-        )
-        edge_contacts = self.scene.add_group(
-            name="Contact_Edges", parent=solution_group
-        )
-        supports_group = self.scene.add_group(name="Supports", parent=solution_group)
+        face_contacts = self.scene.add_group(name="Contact_Polygons", parent=solution_group, show=False)
+        edge_contacts = self.scene.add_group(name="Contact_Edges", parent=solution_group, show=False)
+        supports_group = self.scene.add_group(name="Supports", parent=solution_group, show=False)
         reactions = self.scene.add_group(name="Reactions", parent=supports_group)
-        support_contacts = self.scene.add_group(
-            name="Support_Contacts", parent=supports_group
-        )
-        point_results = self.scene.add_group(
-            name="Point Results : [Fn, Ft1, Ft2]", parent=solution_group
-        )
-        degenerate_contacts = self.scene.add_group(
-            name="Degenerate_Contacts", parent=solution_group
-        )
-        interface_contacts = self.scene.add_group(
-            name="Interface_Contacts", parent=solution_group
-        )
-        thrust_points = self.scene.add_group(
-            name="Thrust_Points", parent=solution_group
-        )
+        support_contacts = self.scene.add_group(name="Support_Contacts", parent=supports_group)
+        point_results = self.scene.add_group(name="Point Results : [Fn, Ft1, Ft2]", parent=solution_group, show=False)
+        degenerate_contacts = self.scene.add_group(name="Degenerate_Contacts", parent=solution_group, show=False)
 
         block_ln = []
         for block in self.model.elements():
             T = results.transformation(block.graphnode) or cg.Transformation()
             new_block = block.modelgeometry.transformed(T)
             moved_blocks.append(new_block)
-            tx, ty, tz = T.translation_vector
+            # report the true displacement, not the displacement_scale-amplified one
+            T0 = results.node_attribute(block.graphnode, "transformation")
+            tx, ty, tz = T0.translation_vector if T0 else (0.0, 0.0, 0.0)
 
             facecolor = self.supportcolor if block.is_support else self.blockcolor
             obj = updated_blocks.add(
@@ -346,25 +317,13 @@ class DEMViewer(Viewer):
             except Exception:
                 pass
 
-        # Joined-blocks aggregate interfaces (masonry_dem model.save_joined):
-        # one resultant per body-body interface replaces the per-member-contact
-        # arrows; member polygons/lines are still drawn individually.  Only a
-        # masonry_dem extract_results with save_joined=True writes this
-        # metadata key — for every other solver the list is empty, the member
-        # set is empty, and every code path below is byte-identical to before.
-        body_interfaces = results.metadata.get("body_interfaces") or []
-        interface_member_edges = set()
-        for itf in body_interfaces:
-            for u, v in itf["edges"]:
-                interface_member_edges.add((u, v))
-                interface_member_edges.add((v, u))
-
-        forces = [
-            np.array(results.force(edge) or [0, 0, 0]) for edge in results.edges()
-        ]
-        forces += [np.array(itf["force"]) for itf in body_interfaces]
-        max_force = max(np.linalg.norm(f) for f in forces) if forces else 0.0
-        block_scale = scale * max(block_ln) / max_force if max_force > 0 else 1.0
+        if self._dem_force_scale_per_newton is None:
+            # "resultant_global" is the canonical key; older results (CRA, or files
+            # saved before PRD/DPRD wrote it) only have "force"
+            forces = [np.array(results.resultant_global(edge) or results.edge_attribute(edge, "force") or [0, 0, 0]) for edge in results.edges()]
+            max_force = max(np.linalg.norm(f) for f in forces) if forces else 0.0
+            self._dem_force_scale_per_newton = scale * max(block_ln) / max_force if max_force > 0 else 1.0
+        block_scale = self._dem_force_scale_per_newton
 
         face_contact_edges = results.face_contact_edges()
         edge_contact_edges = results.edge_contact_edges()
@@ -398,9 +357,7 @@ class DEMViewer(Viewer):
                     if resultant is None:
                         continue
 
-                    from_support = cg.Vector.from_start_end(
-                        support_point, resultant.midpoint
-                    )
+                    from_support = cg.Vector.from_start_end(support_point, resultant.midpoint)
                     if resultant.vector.dot(from_support) < 0:
                         resultant.vector.flip()
 
@@ -408,26 +365,12 @@ class DEMViewer(Viewer):
 
                     contact_polygon = results.contact_polygon(edge)
 
-                    if contact_polygon is None:
-                        continue
-
                     if contact_polygon.area < 1e-6:
-                        print(
-                            f"WARNING:\nContact polygon for support edge {edge} has very small area ({contact_polygon.area:.2e}), skipping visualization. \n"
-                        )
-                        continue
-
-                    try:
-                        support_brep = contact_polygon.to_brep()
-                    except Exception as exc:
-                        print(
-                            f"WARNING:\nSupport contact polygon for edge {edge} could not be "
-                            f"meshed ({type(exc).__name__}), skipping visualization. \n"
-                        )
+                        print(f"WARNING:\nContact polygon for support edge {edge} has very small area ({contact_polygon.area:.2e}), skipping visualization. \n")
                         continue
 
                     support_contacts.add(
-                        support_brep,
+                        contact_polygon.to_brep(),
                         name=f"contact_polygon_{edge}",
                         color=Color.brown(),
                         opacity=0.5,
@@ -446,9 +389,7 @@ class DEMViewer(Viewer):
                         continue
 
                     resultant = ec.resultantline()
-                    from_support = cg.Vector.from_start_end(
-                        support_point, resultant.midpoint
-                    )
+                    from_support = cg.Vector.from_start_end(support_point, resultant.midpoint)
 
                     if resultant.vector.dot(from_support) < 0:
                         resultant.vector.flip()
@@ -460,12 +401,9 @@ class DEMViewer(Viewer):
 
                 if total_weight > 0:
                     position = cg.Point(
-                        sum(p.x * w for (p, _), w in zip(point_forces, weights))
-                        / total_weight,
-                        sum(p.y * w for (p, _), w in zip(point_forces, weights))
-                        / total_weight,
-                        sum(p.z * w for (p, _), w in zip(point_forces, weights))
-                        / total_weight,
+                        sum(p.x * w for (p, _), w in zip(point_forces, weights)) / total_weight,
+                        sum(p.y * w for (p, _), w in zip(point_forces, weights)) / total_weight,
+                        sum(p.z * w for (p, _), w in zip(point_forces, weights)) / total_weight,
                     )
                     resultant = cg.Vector(0, 0, 0)
                     for _, f in point_forces:
@@ -477,7 +415,7 @@ class DEMViewer(Viewer):
                     p2 = position - forcevector * block_scale
                     obj_reac = reactions.add(
                         cg.Line(p1, p2),
-                        name=f"F=({resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}) \n|F|={resultant.length:.1f}",
+                        name=f"R - {support_node}",
                         linewidth=2.5,
                         color=Color.red(),
                     )
@@ -503,28 +441,12 @@ class DEMViewer(Viewer):
 
             if fc is None:
                 continue
-            # A degenerate (sliver) contact can carry no force points, which makes
-            # resultantforce divide by zero. Skip such contacts.
-            if not getattr(fc, "points", None):
-                print(
-                    f"WARNING:\nContact for edge {edge} has no force points, skipping visualization. \n"
-                )
-                continue
-            if contact_polygon is None:
-                print(
-                    f"WARNING:\nFace contact for edge {edge} has no polygon, skipping visualization. \n"
-                )
-                continue
             resultant = fc.resultantforce[0].vector
             resultant_line = fc.resultantline(scale=block_scale)
-            # save_joined: member contacts of an aggregated interface get ONE
-            # arrow per interface (drawn below), not one per member contact.
-            if edge in interface_member_edges:
-                resultant_line = None
             if resultant_line is not None:
                 obj = resultant_forces.add(
                     resultant_line,
-                    name=f"F=({resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}) \n|F|={resultant.length:.1f}",
+                    name=f"F - {edge}",
                     linewidth=2.5,
                     linecolor=Color.blue(),
                 )
@@ -538,11 +460,9 @@ class DEMViewer(Viewer):
                     "Resultant magnitude": round(resultant.length, 3),
                 }
 
-            if contact_polygon.area < 1e-5:
+            if contact_polygon.area < 1e-6:
                 if len(contact_polygon.points) < 3:
-                    print(
-                        f"WARNING:\nContact polygon for edge {edge} has less than 3 points, skipping visualization. \n"
-                    )
+                    print(f"WARNING:\nContact polygon for edge {edge} has less than 3 points, skipping visualization. \n")
                     continue
                 lines_polyg = [line.length for line in contact_polygon.lines]
                 line_min = min(lines_polyg)
@@ -566,29 +486,8 @@ class DEMViewer(Viewer):
                     )
                 continue
 
-            # A sliver contact polygon can have area just above the 1e-6 guard
-            # yet be too near-collinear for OCC to build a face from (it raises
-            # Standard_ConstructionError). Fall back to drawing it as a line
-            # rather than aborting the whole visualization.
-            try:
-                contact_brep = contact_polygon.to_brep()
-            except Exception as exc:
-                lines_polyg = [line.length for line in contact_polygon.lines]
-                longest_line = contact_polygon.lines[int(np.argmax(lines_polyg))]
-                print(
-                    f"WARNING:\nContact polygon for edge {edge} could not be meshed "
-                    f"({type(exc).__name__}); drawing as a line instead. \n"
-                )
-                degenerate_contacts.add(
-                    longest_line,
-                    name=f"contact_line_{edge}",
-                    linewidth=2,
-                    linecolor=Color.red(),
-                )
-                continue
-
             obj = face_contacts.add(
-                contact_brep,
+                contact_polygon.to_brep(),
                 name=f"contact_polygon_{edge}",
                 color=Color.green(),
                 opacity=0.5,
@@ -622,7 +521,7 @@ class DEMViewer(Viewer):
                     p2 = point.translated(-forcevector)
                     point_obj = point_results.add(
                         cg.Line(p1, p2),
-                        name=f"[{c_np:.1f}, {c_u:.1f}, {c_v:.1f}] \n|F|={forcevector_unsc.length:.1f}",
+                        name=f"F - {edge}",
                         linewidth=2.5,
                         linecolor=Color.magenta(),
                     )
@@ -646,21 +545,28 @@ class DEMViewer(Viewer):
         for edge in edge_contact_edges:
             ec = results.contact_data(edge)
 
-            if ec is None or ec.resultantforce is None:
+            if ec.resultantforce is None:
                 continue
             resultant = ec.resultantforce.vector
             line = ec.resultantline(scale=block_scale) if ec else None
 
             if line is None:
                 continue
-            # save_joined: aggregated interfaces get one arrow (drawn below)
-            if edge not in interface_member_edges:
-                resultant_forces.add(
-                    line,
-                    name=f"F=({resultant.x:.1f}, {resultant.y:.1f}, {resultant.z:.1f}) \n|F|={resultant.length:.1f}",
-                    linewidth=2.5,
-                    linecolor=Color.blue(),
-                )
+            obj = resultant_forces.add(
+                line,
+                name=f"F - {edge}",
+                linewidth=2.5,
+                linecolor=Color.blue(),
+            )
+            obj.attributes["data"] = {
+                "Edge": str(edge),
+                "Resultant force": {
+                    "Fx": round(resultant.x, 3),
+                    "Fy": round(resultant.y, 3),
+                    "Fz": round(resultant.z, 3),
+                },
+                "Resultant magnitude": round(resultant.length, 3),
+            }
 
             edge_contacts.add(
                 cg.Line(ec.points[0], ec.points[1]),
@@ -680,7 +586,7 @@ class DEMViewer(Viewer):
                     p2 = point.translated(-forcevector)
                     point_obj = point_results.add(
                         cg.Line(p1, p2),
-                        name=f"[{c_np:.1f}, {c_u:.1f}, {c_v:.1f}] \n|F|={forcevector_unsc.length:.1f}",
+                        name=f"F - {edge}",
                         linewidth=2.5,
                         linecolor=Color.magenta(),
                     )
@@ -698,127 +604,3 @@ class DEMViewer(Viewer):
                         },
                         "Resultant force magnitude": round(forcevector_unsc.length, 3),
                     }
-
-        # Point (vertex) contacts
-        # -----------------------
-        # A single-point contact carries a VertexContact (contact_data) and a
-        # Point (contact_geometry). Draw the point marker and its force glyph.
-        for edge in results.point_contact_edges():
-            vc = results.contact_data(edge)
-            geom = results.contact_geometry(edge)
-            point = cg.Point(*geom) if geom is not None else getattr(vc, "point", None)
-            if vc is None or point is None or vc.frame is None:
-                continue
-
-            edge_contacts.add(
-                point,
-                name=f"contact_point_{edge}",
-                pointsize=6,
-                pointcolor=Color.red(),
-            )
-
-            t1, t2, n = vc.frame.xaxis, vc.frame.yaxis, vc.frame.zaxis
-            for force in vc.forces:
-                if edge in interface_member_edges:
-                    break  # save_joined: one arrow per interface (drawn below)
-                c_np, c_u, c_v = force["c_np"], force["c_u"], force["c_v"]
-                forcevector_unsc = n * c_np + t1 * c_u + t2 * c_v
-                if not forcevector_unsc:
-                    continue
-                forcevector = forcevector_unsc * block_scale
-                obj = resultant_forces.add(
-                    cg.Line(
-                        point.translated(forcevector), point.translated(-forcevector)
-                    ),
-                    name=f"F=({forcevector_unsc.x:.1f}, {forcevector_unsc.y:.1f}, {forcevector_unsc.z:.1f}) \n|F|={forcevector_unsc.length:.1f}",
-                    linewidth=2.5,
-                    linecolor=Color.blue(),
-                )
-                obj.attributes["data"] = {
-                    "Edge": str(edge),
-                    "Contact point": {
-                        "x": round(point.x, 4),
-                        "y": round(point.y, 4),
-                        "z": round(point.z, 4),
-                    },
-                    "Force components": {
-                        "c_np": round(c_np, 3),
-                        "c_u": round(c_u, 3),
-                        "c_v": round(c_v, 3),
-                    },
-                    "Resultant force magnitude": round(forcevector_unsc.length, 3),
-                }
-
-        # Joined-body interfaces (masonry_dem model.save_joined)
-        # ------------------------------------------------------
-        # One aggregate resultant per body-body interface: total force applied
-        # at the |F|-weighted centre of pressure. Member polygons stay
-        # individual. Empty for every other solver (metadata key absent).
-        for itf in body_interfaces:
-            # The interface SURFACE: one welded mesh, member contact polygons
-            # kept as separate faces in their own vertex order. Drawn as a mesh
-            # rather than a single ring on purpose — an interface spanning a
-            # concave corner is not planar, and a non-convex one has no valid
-            # ring ordering. `None` when every member is an edge/point contact,
-            # and absent entirely on results saved before meshes were written.
-            interface_mesh = itf.get("mesh")
-            if interface_mesh is not None:
-                obj = interface_contacts.add(
-                    interface_mesh,
-                    name=f"interface_{tuple(itf['bodies'])}",
-                    facecolor=Color.brown(),
-                    opacity=0.6,
-                    show_lines=True,
-                )
-                obj.attributes["data"] = {
-                    "Bodies": itf["bodies"],
-                    "Member contacts": len(itf["edges"]),
-                    "Faces": interface_mesh.number_of_faces(),
-                    "Contact area": round(itf["area"], 6),
-                }
-
-            F = cg.Vector(*itf["force"])
-            if F.length == 0:
-                continue
-
-            # Draw the resultant through the THRUST point — the point the
-            # normal resultant actually passes through (the normal tractions
-            # exert no moment about it), so stringing these together across a
-            # series of joints traces the thrust line. Falls back to the
-            # section centroid on an open joint carrying no compression.
-            thrust = itf.get("thrust")
-            centroid = itf.get("centroid") or itf.get("point")
-            point = cg.Point(*(thrust if thrust is not None else centroid))
-
-            if thrust is not None:
-                thrust_points.add(
-                    cg.Point(*thrust),
-                    name=f"thrust_{tuple(itf['bodies'])}",
-                    pointcolor=Color.red(),
-                    pointsize=8,
-                )
-
-            half = F * 0.5 * block_scale
-            obj = resultant_forces.add(
-                cg.Line(point - half, point + half),
-                name=f"Interface {tuple(itf['bodies'])}: F=({F.x:.1f}, {F.y:.1f}, {F.z:.1f}) \n|F|={F.length:.1f}",
-                linewidth=3,
-                linecolor=Color.blue(),
-            )
-            ecc = itf.get("eccentricity")
-            obj.attributes["data"] = {
-                "Bodies": itf["bodies"],
-                "Member contacts": len(itf["edges"]),
-                "Force components": {
-                    "Fx": round(F.x, 3),
-                    "Fy": round(F.y, 3),
-                    "Fz": round(F.z, 3),
-                },
-                "Resultant magnitude": round(F.length, 3),
-                "Normal force N": round(itf.get("N", 0.0), 3),
-                "Moment about section": [round(m, 3) for m in itf["moment"]],
-                "Eccentricity": (
-                    None if ecc is None else [round(e, 6) for e in ecc]
-                ),
-                "Contact area": round(itf["area"], 6),
-            }

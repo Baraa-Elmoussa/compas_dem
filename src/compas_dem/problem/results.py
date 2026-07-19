@@ -1,14 +1,12 @@
 from compas.data import Data
+from compas.geometry import Transformation
+from compas.geometry import axis_and_angle_from_matrix
+from compas.geometry import identity_matrix
+from compas.geometry import matrix_from_axis_and_angle
 
 
 class Results(Data):
     """Standalone container for DEM solver results.
-
-    Decoupled from both the model and the problem — identified by
-    ``model_id`` and ``problem_id`` so it can be validated before attaching.
-
-    Stores per-node and per-edge graph attributes, plus solver-level metadata
-    (time-series, history data). All data is serializable via ``compas.json_dump``.
 
     Edge keys are stored internally as ``"u,v"`` strings so they survive JSON
     round-trips. All accessor methods accept ``(u, v)`` tuples and automatically
@@ -20,12 +18,17 @@ class Results(Data):
         GUID of the model this result belongs to.
     problem_id : str
         GUID of the problem that produced this result.
+    displacement_scale : float, optional
+        Amplification factor applied to block displacements by
+        :meth:`transformation`, :meth:`displacement` and :meth:`rotation`.
+        Default is ``1.0`` (no amplification). Stored values are never modified.
     """
 
-    def __init__(self, model_id: str, problem_id: str) -> None:
+    def __init__(self, model_id: str, problem_id: str, displacement_scale: float = 1.0) -> None:
         super().__init__()
         self.model_id = model_id
         self.problem_id = problem_id
+        self.displacement_scale = displacement_scale
         self._node_data: dict[int, dict] = {}
         self._edge_data: dict[str, dict] = {}
         self.metadata: dict = {}
@@ -35,6 +38,7 @@ class Results(Data):
         return {
             "model_id": self.model_id,
             "problem_id": self.problem_id,
+            "displacement_scale": self.displacement_scale,
             "node_data": self._node_data,
             "edge_data": self._edge_data,
             "metadata": self.metadata,
@@ -43,6 +47,7 @@ class Results(Data):
     @classmethod
     def __from_data__(cls, data: dict) -> "Results":
         obj = cls(model_id=data["model_id"], problem_id=data["problem_id"])
+        obj.displacement_scale = data.get("displacement_scale", 1.0)
         obj._node_data = {int(k): v for k, v in data["node_data"].items()}
         obj._edge_data = data["edge_data"]
         obj.metadata = data.get("metadata", {})
@@ -114,18 +119,46 @@ class Results(Data):
     # =========================================================================
 
     def transformation(self, node: int):
-        """Return the :class:`compas.geometry.Transformation` for a block."""
-        return self.node_attribute(node, "transformation")
+        """Return the :class:`compas.geometry.Transformation` for a block.
+
+        If ``displacement_scale`` is not ``1.0``, the rigid-body motion is
+        amplified: the translation and the rotation angle are both multiplied
+        by the scale. The stored transformation is left untouched and can be
+        accessed directly with ``node_attribute(node, "transformation")``.
+        """
+        T = self.node_attribute(node, "transformation")
+        if T is None or self.displacement_scale == 1.0:
+            return T
+        return self._scale_transformation(T)
+
+    def _scale_transformation(self, T: Transformation) -> Transformation:
+        """Amplify a rigid-body transformation by ``displacement_scale``."""
+        s = self.displacement_scale
+        axis, angle = axis_and_angle_from_matrix(T.matrix)
+        if angle and any(axis):
+            M = matrix_from_axis_and_angle(axis, angle * s)
+        else:
+            M = identity_matrix(4)
+        M[0][3] = T.matrix[0][3] * s
+        M[1][3] = T.matrix[1][3] * s
+        M[2][3] = T.matrix[2][3] * s
+        return Transformation.from_matrix(M)
 
     def displacement(self, node: int):
-        """Return the translation ``[dx, dy, dz]`` derived from the transformation."""
+        """Return the translation ``[dx, dy, dz]`` derived from the transformation.
+
+        Amplified by ``displacement_scale`` if it is not ``1.0``.
+        """
         T = self.transformation(node)
         if T is None:
             return None
         return [T.matrix[0][3], T.matrix[1][3], T.matrix[2][3]]
 
     def rotation(self, node: int):
-        """Return the 3×3 rotation sub-matrix derived from the transformation."""
+        """Return the 3×3 rotation sub-matrix derived from the transformation.
+
+        Amplified by ``displacement_scale`` if it is not ``1.0``.
+        """
         T = self.transformation(node)
         if T is None:
             return None
@@ -149,7 +182,7 @@ class Results(Data):
 
     def contact_point(self, edge: tuple):
         """Return the list of contact points for the edge."""
-        return self.edge_attribute(edge, "contact_point")
+        return self.edge_attribute(edge, "contact_points")
 
     def contact_polygon(self, edge: tuple):
         """Return the contact :class:`compas.geometry.Polygon` for the edge."""
@@ -158,17 +191,23 @@ class Results(Data):
     def contact_geometry(self, edge: tuple):
         """Return the geometry matching the contact class of the edge.
 
-        A :class:`compas.geometry.Polygon` for a face contact, a
-        :class:`compas.geometry.Line` (between the two contact points) for an
-        edge contact, or a :class:`compas.geometry.Point` for a vertex/point
-        contact. Dispatch on :meth:`face_contact` / :meth:`edge_contact` /
-        :meth:`point_contact` to know which type to expect.
+        In case contact can't be defined with a polygon, for now we dump the
+        geometry into contact_geometry (for edge & vertex contacts). This is
+        a temporary solution until we implement a more robust contact handling mechanism.
         """
         return self.edge_attribute(edge, "contact_geometry")
 
     def contact_frame(self, edge: tuple):
-        """Return the contact :class:`compas.geometry.Frame` for the edge."""
+        """Return the contact :class:`compas.geometry.Frame` for the edge.
+
+        The ``zaxis`` is the contact normal; ``xaxis`` and ``yaxis`` are the
+        tangential directions of ``c_u`` and ``c_v`` respectively.
+        """
         return self.edge_attribute(edge, "contact_frame")
+
+    def contact_frames(self, edge: tuple):
+        """Return the per-point contact frames for the edge (LMGC90 only)."""
+        return self.edge_attribute(edge, "contact_frames")
 
     def contact_data(self, edge: tuple):
         """Return the :class:`~compas_dem.interactions.FrictionContact` object for the edge."""
@@ -186,16 +225,35 @@ class Results(Data):
     # Named edge accessors — forces
     # =========================================================================
 
-    def force(self, edge: tuple):
+    def resultant_global(self, edge: tuple):
         """Return the resultant force vector ``[fx, fy, fz]`` for the edge."""
-        return self.edge_attribute(edge, "force")
+        return self.edge_attribute(edge, "resultant_global")
+
+    def resultant_local(self, edge: tuple):
+        """Return the resultant force vector ``[fx, fy, fz]`` for the edge."""
+        return self.edge_attribute(edge, "resultant_local")
+
+    def force_point(self, edge: tuple):
+        """Return the resultant force application point for the edge."""
+        return self.edge_attribute(edge, "force_point")
 
     def force_magnitude(self, edge: tuple) -> float:
-        """Return the scalar resultant force magnitude for the edge."""
+        """Return the scalar resultant force magnitude for the edge, i.e. ``|force|``."""
         return self.edge_attribute(edge, "force_magnitude")
 
+    def nodal_force_magnitudes(self, edge: tuple):
+        """Return the per-point force magnitudes for the edge (LMGC90 only).
+
+        These sum to more than :meth:`force_magnitude` whenever the per-point
+        forces are not colinear.
+        """
+        return self.edge_attribute(edge, "nodal_force_magnitudes")
+
     def force_vector(self, edge: tuple):
-        """Return the per-point force vectors (LMGC90 only)."""
+        """Return the per-point force vectors (LMGC90 only).
+
+        Oriented as the force acting on the node returned by :meth:`force_on_node`.
+        """
         return self.edge_attribute(edge, "force_vector")
 
     def force_normal(self, edge: tuple):

@@ -13,6 +13,7 @@ except ImportError:
 import compas.geometry as cg
 from compas_dem.analysis.resolve import resolve_centroidal_displacements
 from compas_dem.interactions import FrictionContact
+from compas_dem.interactions.contact import local_resultant
 from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem.results import Results
@@ -114,18 +115,17 @@ def _post_processing_cra(assembly: Assembly, problem: Problem, model: BlockModel
             fc.forces = scaled_forces
             results.set_edge((u, v), "contact_data", fc)
             results.set_edge((u, v), "face_contact", True)
-            results.set_edge((u, v), "contact_point", [list(p) for p in interface.points])
+            results.set_edge((u, v), "contact_points", [list(p) for p in interface.points])
             results.set_edge((u, v), "contact_polygon", interface.polygon)
 
-            fn = sum(f["c_np"] - f["c_nn"] for f in scaled_forces)
-            fu = sum(f["c_u"] for f in scaled_forces)
-            fv = sum(f["c_v"] for f in scaled_forces)
+            fu, fv, fn = local_resultant(scaled_forces)
             w = list(interface.frame.zaxis)
             u_ax = list(interface.frame.xaxis)
             v_ax = list(interface.frame.yaxis)
             force = [fn * w[j] + fu * u_ax[j] + fv * v_ax[j] for j in range(3)]
-            results.set_edge((u, v), "force", force)
-            results.set_edge((u, v), "force_magnitude", np.linalg.norm(force))
+            results.set_edge((u, v), "resultant_global", force)
+            results.set_edge((u, v), "resultant_local", [fu, fv, fn])
+            results.set_edge((u, v), "force_magnitude", float(np.linalg.norm(force)))
 
     return results
 

@@ -1,6 +1,7 @@
 from compas_dem.analysis.resolve import resolve_centroidal_displacements
 from compas_dem.analysis.resolve import resolve_centroidal_loads
 from compas_dem.interactions import FrictionContact
+from compas_dem.interactions.contact import local_resultant
 from compas_dem.models import BlockModel
 from compas_dem.problem.problem import Problem
 from compas_dem.problem.results import Results
@@ -167,11 +168,12 @@ def _post_processing_prd(prd: PR3DModel, problem: Problem, model: BlockModel) ->
         results.set_edge(edge, "contact_polygon", fc.polygon)
         results.set_edge(edge, "contact_data", fc)
         results.set_edge(edge, "force_magnitude", force_mag)
-        results.set_edge(edge, "force", force_vec)
+        results.set_edge(edge, "resultant_global", force_vec)
+        results.set_edge(edge, "resultant_local", local_resultant(fc.forces))
         results.set_edge(edge, "face_contact", n_pts >= 3)
         results.set_edge(edge, "edge_contact", n_pts == 2)
         results.set_edge(edge, "point_contact", n_pts == 1)
-        results.set_edge(edge, "contact_point", [list(p) for p in fc.points])
+        results.set_edge(edge, "contact_points", [list(p) for p in fc.points])
         results.set_edge(edge, "force_normal", [f["c_np"] - f["c_nn"] for f in fc.forces])
         results.set_edge(edge, "force_tangent1", [f["c_u"] for f in fc.forces])
         results.set_edge(edge, "force_tangent2", [f["c_v"] for f in fc.forces])
