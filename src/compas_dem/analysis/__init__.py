@@ -5,6 +5,7 @@ _EXPORTS = {
     "bla_solve": ("compas_dem.analysis.bla", "bla_solve"),
     "cra_solve": ("compas_dem.analysis.cra", "cra_solve"),
     "lmgc90_solve": ("compas_dem.analysis.lmgc90", "lmgc90_solve"),
+    "masonry_dem_solve": ("compas_dem.analysis.masonry_dem", "masonry_dem_solve"),
     "prd_solve": ("compas_dem.analysis.prd", "prd_solve"),
     "rbe_solve": ("compas_dem.analysis.cra", "rbe_solve"),
     "threedec_solve": ("compas_dem.analysis.threedec", "threedec_solve"),

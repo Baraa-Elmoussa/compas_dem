@@ -1,0 +1,60 @@
+{
+    "data": {
+        "name": "benchmark-stack stages",
+        "schema_version": 1,
+        "stages": [
+            {
+                "data": {
+                    "body_forces": [],
+                    "displacements": [],
+                    "gravity": null,
+                    "kind": "initialization",
+                    "name": "initialization",
+                    "options": {},
+                    "point_loads": [],
+                    "schema_version": 1,
+                    "source_boundary_conditions": [],
+                    "surface_loads": []
+                },
+                "dtype": "compas_3dec.solver/ThreeDECStage",
+                "guid": "652906c7-9860-4861-baa1-256ea054b9cb",
+                "name": "initialization"
+            },
+            {
+                "data": {
+                    "body_forces": [],
+                    "displacements": [],
+                    "gravity": 9.81,
+                    "kind": "gravity",
+                    "name": "gravity",
+                    "options": {
+                        "cycles": 15000,
+                        "damping": "global",
+                        "gravity_steps": 10,
+                        "ratio": 1e-05,
+                        "ratio_keyword": "ratio-local",
+                        "save_steps": true,
+                        "solve_time": null,
+                        "stop_on_nonconvergence": true,
+                        "time": 1.0
+                    },
+                    "point_loads": [],
+                    "schema_version": 1,
+                    "source_boundary_conditions": [
+                        "ff08d530-ca70-454c-9685-bb2028a266b7"
+                    ],
+                    "surface_loads": []
+                },
+                "dtype": "compas_3dec.solver/ThreeDECStage",
+                "guid": "a0ffe02d-25fc-4473-ac69-b76dd68f16e4",
+                "name": "gravity"
+            }
+        ],
+        "supports": [
+            0
+        ]
+    },
+    "dtype": "compas_3dec.solver/ThreeDECStagePlan",
+    "guid": "26622b75-b4b8-4af3-a71b-73022695f284",
+    "name": "benchmark-stack stages"
+}

@@ -1,0 +1,61 @@
+{
+    "data": {
+        "name": "3DEC arch gravity stages",
+        "schema_version": 1,
+        "stages": [
+            {
+                "data": {
+                    "body_forces": [],
+                    "displacements": [],
+                    "gravity": null,
+                    "kind": "initialization",
+                    "name": "initialization",
+                    "options": {},
+                    "point_loads": [],
+                    "schema_version": 1,
+                    "source_boundary_conditions": [],
+                    "surface_loads": []
+                },
+                "dtype": "compas_3dec.solver/ThreeDECStage",
+                "guid": "317b14d5-5381-44cd-8d84-72123d1664af",
+                "name": "initialization"
+            },
+            {
+                "data": {
+                    "body_forces": [],
+                    "displacements": [],
+                    "gravity": 9.81,
+                    "kind": "gravity",
+                    "name": "gravity",
+                    "options": {
+                        "cycles": 15000,
+                        "damping": "global",
+                        "gravity_steps": 10,
+                        "ratio": 1e-05,
+                        "ratio_keyword": "ratio-local",
+                        "save_steps": true,
+                        "solve_time": null,
+                        "stop_on_nonconvergence": true,
+                        "time": 1.0
+                    },
+                    "point_loads": [],
+                    "schema_version": 1,
+                    "source_boundary_conditions": [
+                        "a9a53bf2-f6b0-42f8-9097-25cd9811132e"
+                    ],
+                    "surface_loads": []
+                },
+                "dtype": "compas_3dec.solver/ThreeDECStage",
+                "guid": "2b71ebc8-c072-41ca-bb8e-64bf23f58d34",
+                "name": "gravity"
+            }
+        ],
+        "supports": [
+            0,
+            9
+        ]
+    },
+    "dtype": "compas_3dec.solver/ThreeDECStagePlan",
+    "guid": "2adadaea-f66e-4084-92b5-479aa5654689",
+    "name": "3DEC arch gravity stages"
+}

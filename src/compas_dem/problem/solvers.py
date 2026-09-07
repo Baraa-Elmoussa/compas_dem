@@ -100,6 +100,110 @@ class Solver(Data):
         return self
 
     @classmethod
+    def MasonryDEM(
+        cls,
+        mode: str = "auto",
+        n_steps: Optional[int] = None,
+        duration: Optional[float] = None,
+        damping: str = "local",
+        damping_params: Optional[dict] = None,
+        kn: Optional[float] = None,
+        kt: Optional[float] = None,
+        update_every: int = 10,
+        verbose_every: int = 1000,
+        convergence_check: bool = True,
+        n_increments: int = 10,
+        ramp_time: float = 1e-2,
+        max_steps: int = 50_000,
+        settle_first: bool = True,
+        stop_on_failure: bool = True,
+        join_blocks: Optional[list[list[int]]] = None,
+        hist_every: Optional[int] = None,
+        log_ring: Optional[int] = None,
+        vtk_every: Optional[int] = None,
+        vtk_dir: Optional[str] = None,
+        extract_step: int = -1,
+        settings: Optional[dict] = None,
+    ):
+        """Configure the explicit DEM solver provided by ``masonry_dem``.
+
+        The timestep is not a parameter: ``masonry_dem`` derives it from the
+        critical timestep of the assembly, scaled by ``settings["safety"]``.
+
+        Parameters
+        ----------
+        mode : str
+            ``"auto"`` (default) picks the solve mode from the problem: a prescribed
+            displacement or a ramped load is applied incrementally, anything else is
+            integrated in one run. ``"static"`` and ``"gradual"`` force the choice.
+        n_steps : int, optional
+            Number of time steps for the static run. Mutually exclusive with ``duration``.
+        duration : float, optional
+            Simulated time for the static run in seconds. Also the time base of the
+            ramp / instantaneous load series.
+        damping : str
+            Damping strategy: ``"local"`` (default), ``"viscous"``, ``"rayleigh"``,
+            ``"adaptive"`` or ``"none"``.
+        damping_params : dict, optional
+            Keyword arguments for the damping model, e.g. ``{"lam": 0.7}``.
+        kn, kt : float, optional
+            Joint normal / tangential stiffness in Pa/m. Fall back to the problem's
+            joint model, then to the ``masonry_dem`` defaults.
+        update_every : int
+            Contact-geometry refresh interval, in steps. Default ``10``.
+        verbose_every : int
+            Solver progress interval, in steps. ``0`` suppresses it. Default ``1000``.
+        convergence_check : bool
+            Stop a static run early once the unbalanced force ratio converges.
+        n_increments : int
+            Number of increments in gradual mode. Default ``10``.
+        ramp_time : float
+            Minimum time over which one increment is imposed, in seconds.
+        max_steps : int
+            Step ceiling for each relax phase in gradual mode.
+        settle_first : bool
+            Relax under self-weight before the first increment.
+        stop_on_failure : bool
+            Stop the incremental run at the first non-converged increment.
+        join_blocks : list[list[int]], optional
+            Groups of block indices to weld into single rigid bodies.
+        hist_every, log_ring, vtk_every, vtk_dir
+            Recording configuration. History frames are needed for animation.
+        extract_step : int
+            Step to extract the results from. Default ``-1`` (last).
+        settings : dict, optional
+            Escape hatch for the remaining ``DiscreteElementModel`` attributes,
+            such as ``safety``, ``tolerance`` or ``contact_method``.
+        """
+        self = cls()
+        self.name = "MasonryDEM"
+        self.parameters = {
+            "mode": mode,
+            "n_steps": n_steps,
+            "duration": duration,
+            "damping": damping,
+            "damping_params": damping_params,
+            "kn": kn,
+            "kt": kt,
+            "update_every": update_every,
+            "verbose_every": verbose_every,
+            "convergence_check": convergence_check,
+            "n_increments": n_increments,
+            "ramp_time": ramp_time,
+            "max_steps": max_steps,
+            "settle_first": settle_first,
+            "stop_on_failure": stop_on_failure,
+            "join_blocks": join_blocks,
+            "hist_every": hist_every,
+            "log_ring": log_ring,
+            "vtk_every": vtk_every,
+            "vtk_dir": vtk_dir,
+            "extract_step": extract_step,
+            "settings": settings,
+        }
+        return self
+
+    @classmethod
     def ThreeDEC(
         cls,
         version: str = "7.0",

@@ -226,7 +226,7 @@ class DEMViewer(Viewer):
     def _add_graph(self):
         parent: Group = self.groups["interactions"]
 
-        node_point = {node: self.model.graph.node_element(node).point for node in self.model.graph.nodes()}  # type: ignore
+        node_point = {node: cg.Point(*self.model.graph.node_element(node).point) for node in self.model.graph.nodes()}
         points = list(node_point.values())
         lines = [cg.Line(node_point[u], node_point[v]) for u, v in self.model.graph.edges()]
 
@@ -370,7 +370,7 @@ class DEMViewer(Viewer):
                         continue
 
                     support_contacts.add(
-                        contact_polygon.to_brep(),
+                        contact_polygon,
                         name=f"contact_polygon_{edge}",
                         color=Color.brown(),
                         opacity=0.5,
@@ -487,7 +487,7 @@ class DEMViewer(Viewer):
                 continue
 
             obj = face_contacts.add(
-                contact_polygon.to_brep(),
+                contact_polygon,
                 name=f"contact_polygon_{edge}",
                 color=Color.green(),
                 opacity=0.5,

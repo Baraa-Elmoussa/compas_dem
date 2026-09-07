@@ -52,14 +52,14 @@ bla = Solver.BLA()
 cra = Solver.CRA()
 rbe = Solver.RBE()
 
-problem.set_solver(bla)
-solution_bla = problem.solve().copy()
+# problem.set_solver(bla)
+# solution_bla = problem.solve().copy()
 
 problem.set_solver(lmgc90)
 solution_lmgc90 = problem.solve().copy()
 
-problem.set_solver(rbe)
-solution_rbe = problem.solve().copy()
+# problem.set_solver(rbe)
+# solution_rbe = problem.solve().copy()
 
 
 # problem.set_solver(cra)
@@ -72,8 +72,8 @@ solution_rbe = problem.solve().copy()
 viewer = DEMViewer(model)
 
 viewer.setup()
-viewer.add_solution(solution_bla, name="BLA", scale=1)
+# viewer.add_solution(solution_bla, name="BLA", scale=1)
 viewer.add_solution(solution_lmgc90, name="LMGC90", scale=1)
-viewer.add_solution(solution_rbe, name="RBE", scale=1)
+# viewer.add_solution(solution_rbe, name="RBE", scale=1)
 # viewer.add_solution(solution_cra, name="CRA", scale=1)
 viewer.show()

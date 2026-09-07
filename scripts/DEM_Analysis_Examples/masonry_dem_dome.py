@@ -12,6 +12,14 @@ To generate the input file, run the `dem_dome.py` script first.
 
 import pathlib
 
+from compas_dem.material import Stone
+from compas_dem.models import BlockModel
+from compas_dem.templates import ArchTemplate
+from compas_dem.viewer import DEMViewer
+
+from masonry_dem.core import DiscreteElementModel
+from masonry_dem.core.damping import LocalDamping
+
 import compas
 from compas_dem.material import Stone
 from compas_dem.models import BlockModel
@@ -19,11 +27,20 @@ from compas_dem.problem import Problem
 from compas_dem.problem import Solver
 from compas_dem.viewer import DEMViewer
 
+
 # =============================================================================
 # Import
 # =============================================================================
 
-model: BlockModel = compas.json_load(pathlib.Path(__file__).parent.parent.parent / "data" / "dome.json")  # type: ignore
+file = "/Users/belmoussa/My_Files/Other_libs/Applications/meshes.json"
+meshes = compas.json_load(file)
+model = BlockModel()
+
+for mesh in meshes:
+    model.add_block_from_mesh(mesh)
+for block in model.elements():
+    if block.point[2] < 0.4:
+        block.is_support = True
 
 # =============================================================================
 # Material
@@ -38,21 +55,31 @@ model.assign_material(stone, elements=list(model.elements()))
 # Problem setup and solve
 # =============================================================================
 
-problem = Problem(model)
-problem.set_contact_model("MohrCoulomb", mu=0.5, c=0.0)
-lmgc90_solver = Solver.LMGC90(duration=0.2, n_steps=1000, urf_threshold=1e-3, theta=0.5)
-rbe_solver = Solver.PRD(solver="CLARABEL")
-tdec_solver = Solver.ThreeDEC()
-# problem.set_solver(tdec_solver)
-# solution_3dec = problem.solve()
+dem_model = DiscreteElementModel(model)
 
-problem.set_solver(lmgc90_solver)
-solution_lmgc90 = problem.solve()
+dem_model.set_global_damping(LocalDamping(lam=0.7))
+dem_model.set_joint_stiffness(7e9, 3.5e9)
+dem_model.set_contact_law(mu=0.6)
+dem_model.setup_problem()
+
+# model.apply_forces([(0, [600000, 0, 0, 0, 0, 0]) ])
+# =============================================================================
+# Solvers
+# =============================================================================
+
+dem_model.solve(n_steps=50000, update_every=5, verbose_every=1000)
+
+# =============================================================================
+# Output
+# =============================================================================
+
+results = dem_model.extract_results()
+
 # =============================================================================
 # Viz
 # =============================================================================
 
-viewer = DEMViewer(model)
-# viewer.add_solution(solution_3dec, name="3DEC")
-viewer.add_solution(solution_lmgc90, name="LMGC90")
+
+viewer = DEMViewer(dem_model)
+viewer.add_solution(results)
 viewer.show()

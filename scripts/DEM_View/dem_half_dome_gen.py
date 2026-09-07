@@ -14,8 +14,8 @@ from compas_dem.viewer import DEMViewer
 # =============================================================================
 
 RADIUS = 5
-THICKNESS = 0.3
-SPRING = 0.5  # v parameter of the springing: 0 is the crown, 0.5 the equator
+THICKNESS = 0.16
+SPRING = 0.35  # v parameter of the springing: 0 is the crown, 0.5 the equator
 NU = 32  # number of blocks around the full circumference at the springing
 NV = 15  # number of courses between the springing and the crown
 MIN_WIDTH = 0.5  # merge blocks in pairs when a course gets narrower than this

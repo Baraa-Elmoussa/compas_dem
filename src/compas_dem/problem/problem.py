@@ -744,7 +744,11 @@ class Problem(Data):
             from compas_dem.analysis.bla import bla_solve
 
             return bla_solve(self, model, **params)
-        raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', '3DEC', 'CRA', 'RBE', 'PRD', 'BLA'.")
+        if solver.name == "MasonryDEM":
+            from compas_dem.analysis.masonry_dem import masonry_dem_solve
+
+            return masonry_dem_solve(self, model, **params)
+        raise ValueError(f"Solver '{solver.name}' is not recognised. Available: 'LMGC90', '3DEC', 'CRA', 'RBE', 'PRD', 'BLA', 'MasonryDEM'.")
 
     # ============================================================================
     # Validation

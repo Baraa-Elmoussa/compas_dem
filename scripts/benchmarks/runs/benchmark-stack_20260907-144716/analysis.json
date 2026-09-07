@@ -1,0 +1,1853 @@
+{
+    "data": {
+        "blocks": [
+            {
+                "element_guid": "189c7342-ba94-4862-b1f7-056bd0c9982a",
+                "geometry": {
+                    "data": {
+                        "attributes": {},
+                        "default_edge_attributes": {},
+                        "default_face_attributes": {},
+                        "default_vertex_attributes": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "edgedata": {},
+                        "face": {
+                            "0": [
+                                0,
+                                1,
+                                2,
+                                3
+                            ],
+                            "1": [
+                                0,
+                                3,
+                                5,
+                                4
+                            ],
+                            "2": [
+                                3,
+                                2,
+                                6,
+                                5
+                            ],
+                            "3": [
+                                2,
+                                1,
+                                7,
+                                6
+                            ],
+                            "4": [
+                                1,
+                                0,
+                                4,
+                                7
+                            ],
+                            "5": [
+                                4,
+                                5,
+                                6,
+                                7
+                            ]
+                        },
+                        "facedata": {
+                            "0": {},
+                            "1": {},
+                            "2": {},
+                            "3": {},
+                            "4": {},
+                            "5": {}
+                        },
+                        "max_face": 5,
+                        "max_vertex": 7,
+                        "vertex": {
+                            "0": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0
+                            },
+                            "1": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 0.0
+                            },
+                            "2": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 0.0
+                            },
+                            "3": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 0.0
+                            },
+                            "4": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.4
+                            },
+                            "5": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 0.4
+                            },
+                            "6": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 0.4
+                            },
+                            "7": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 0.4
+                            }
+                        }
+                    },
+                    "dtype": "compas.datastructures/Mesh",
+                    "guid": "e6e33b19-59e0-4877-ab68-9cd744da7278",
+                    "inheritance": [],
+                    "name": "Box"
+                },
+                "group": "supports",
+                "is_support": true,
+                "material": {
+                    "data": {
+                        "Ecm": null,
+                        "density": 2400.0,
+                        "fck": null,
+                        "ft": null,
+                        "name": "Stone",
+                        "poisson": 0.2
+                    },
+                    "dtype": "compas_dem.material/Stone",
+                    "guid": "9516caef-5fa9-49a0-b4c1-5084b1ca6cfb"
+                },
+                "name": "Block",
+                "node": 0,
+                "region": 0
+            },
+            {
+                "element_guid": "b6befa69-a06d-43b6-b6ff-f2eb111fdd0e",
+                "geometry": {
+                    "data": {
+                        "attributes": {},
+                        "default_edge_attributes": {},
+                        "default_face_attributes": {},
+                        "default_vertex_attributes": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "edgedata": {},
+                        "face": {
+                            "0": [
+                                0,
+                                1,
+                                2,
+                                3
+                            ],
+                            "1": [
+                                0,
+                                3,
+                                5,
+                                4
+                            ],
+                            "2": [
+                                3,
+                                2,
+                                6,
+                                5
+                            ],
+                            "3": [
+                                2,
+                                1,
+                                7,
+                                6
+                            ],
+                            "4": [
+                                1,
+                                0,
+                                4,
+                                7
+                            ],
+                            "5": [
+                                4,
+                                5,
+                                6,
+                                7
+                            ]
+                        },
+                        "facedata": {
+                            "0": {},
+                            "1": {},
+                            "2": {},
+                            "3": {},
+                            "4": {},
+                            "5": {}
+                        },
+                        "max_face": 5,
+                        "max_vertex": 7,
+                        "vertex": {
+                            "0": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.4000000000000001
+                            },
+                            "1": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 0.4000000000000001
+                            },
+                            "2": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 0.4000000000000001
+                            },
+                            "3": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 0.4000000000000001
+                            },
+                            "4": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.8
+                            },
+                            "5": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 0.8
+                            },
+                            "6": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 0.8
+                            },
+                            "7": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 0.8
+                            }
+                        }
+                    },
+                    "dtype": "compas.datastructures/Mesh",
+                    "guid": "c77bbde8-976d-40ca-9f91-effa2f42a2cc",
+                    "inheritance": [],
+                    "name": "Box"
+                },
+                "group": "block",
+                "is_support": false,
+                "material": {
+                    "data": {
+                        "Ecm": null,
+                        "density": 2400.0,
+                        "fck": null,
+                        "ft": null,
+                        "name": "Stone",
+                        "poisson": 0.2
+                    },
+                    "dtype": "compas_dem.material/Stone",
+                    "guid": "9516caef-5fa9-49a0-b4c1-5084b1ca6cfb"
+                },
+                "name": "Block",
+                "node": 1,
+                "region": 1
+            },
+            {
+                "element_guid": "c2fe9354-9c8f-4916-9e21-ae586de1f78e",
+                "geometry": {
+                    "data": {
+                        "attributes": {},
+                        "default_edge_attributes": {},
+                        "default_face_attributes": {},
+                        "default_vertex_attributes": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "edgedata": {},
+                        "face": {
+                            "0": [
+                                0,
+                                1,
+                                2,
+                                3
+                            ],
+                            "1": [
+                                0,
+                                3,
+                                5,
+                                4
+                            ],
+                            "2": [
+                                3,
+                                2,
+                                6,
+                                5
+                            ],
+                            "3": [
+                                2,
+                                1,
+                                7,
+                                6
+                            ],
+                            "4": [
+                                1,
+                                0,
+                                4,
+                                7
+                            ],
+                            "5": [
+                                4,
+                                5,
+                                6,
+                                7
+                            ]
+                        },
+                        "facedata": {
+                            "0": {},
+                            "1": {},
+                            "2": {},
+                            "3": {},
+                            "4": {},
+                            "5": {}
+                        },
+                        "max_face": 5,
+                        "max_vertex": 7,
+                        "vertex": {
+                            "0": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.8
+                            },
+                            "1": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 0.8
+                            },
+                            "2": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 0.8
+                            },
+                            "3": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 0.8
+                            },
+                            "4": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 1.2000000000000002
+                            },
+                            "5": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 1.2000000000000002
+                            },
+                            "6": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 1.2000000000000002
+                            },
+                            "7": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 1.2000000000000002
+                            }
+                        }
+                    },
+                    "dtype": "compas.datastructures/Mesh",
+                    "guid": "a1a262f9-e82c-489f-9e2f-a4165e5fab03",
+                    "inheritance": [],
+                    "name": "Box"
+                },
+                "group": "block",
+                "is_support": false,
+                "material": {
+                    "data": {
+                        "Ecm": null,
+                        "density": 2400.0,
+                        "fck": null,
+                        "ft": null,
+                        "name": "Stone",
+                        "poisson": 0.2
+                    },
+                    "dtype": "compas_dem.material/Stone",
+                    "guid": "9516caef-5fa9-49a0-b4c1-5084b1ca6cfb"
+                },
+                "name": "Block",
+                "node": 2,
+                "region": 2
+            },
+            {
+                "element_guid": "ae967f9a-b4a5-4695-99d9-166e556c281a",
+                "geometry": {
+                    "data": {
+                        "attributes": {},
+                        "default_edge_attributes": {},
+                        "default_face_attributes": {},
+                        "default_vertex_attributes": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "edgedata": {},
+                        "face": {
+                            "0": [
+                                0,
+                                1,
+                                2,
+                                3
+                            ],
+                            "1": [
+                                0,
+                                3,
+                                5,
+                                4
+                            ],
+                            "2": [
+                                3,
+                                2,
+                                6,
+                                5
+                            ],
+                            "3": [
+                                2,
+                                1,
+                                7,
+                                6
+                            ],
+                            "4": [
+                                1,
+                                0,
+                                4,
+                                7
+                            ],
+                            "5": [
+                                4,
+                                5,
+                                6,
+                                7
+                            ]
+                        },
+                        "facedata": {
+                            "0": {},
+                            "1": {},
+                            "2": {},
+                            "3": {},
+                            "4": {},
+                            "5": {}
+                        },
+                        "max_face": 5,
+                        "max_vertex": 7,
+                        "vertex": {
+                            "0": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 1.2000000000000002
+                            },
+                            "1": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 1.2000000000000002
+                            },
+                            "2": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 1.2000000000000002
+                            },
+                            "3": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 1.2000000000000002
+                            },
+                            "4": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 1.6
+                            },
+                            "5": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 1.6
+                            },
+                            "6": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 1.6
+                            },
+                            "7": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 1.6
+                            }
+                        }
+                    },
+                    "dtype": "compas.datastructures/Mesh",
+                    "guid": "12473ece-c27b-4374-87b0-fb290dd7ffc2",
+                    "inheritance": [],
+                    "name": "Box"
+                },
+                "group": "block",
+                "is_support": false,
+                "material": {
+                    "data": {
+                        "Ecm": null,
+                        "density": 2400.0,
+                        "fck": null,
+                        "ft": null,
+                        "name": "Stone",
+                        "poisson": 0.2
+                    },
+                    "dtype": "compas_dem.material/Stone",
+                    "guid": "9516caef-5fa9-49a0-b4c1-5084b1ca6cfb"
+                },
+                "name": "Block",
+                "node": 3,
+                "region": 3
+            },
+            {
+                "element_guid": "efde773c-47ec-4cae-ad7e-71663c172984",
+                "geometry": {
+                    "data": {
+                        "attributes": {},
+                        "default_edge_attributes": {},
+                        "default_face_attributes": {},
+                        "default_vertex_attributes": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "edgedata": {},
+                        "face": {
+                            "0": [
+                                0,
+                                1,
+                                2,
+                                3
+                            ],
+                            "1": [
+                                0,
+                                3,
+                                5,
+                                4
+                            ],
+                            "2": [
+                                3,
+                                2,
+                                6,
+                                5
+                            ],
+                            "3": [
+                                2,
+                                1,
+                                7,
+                                6
+                            ],
+                            "4": [
+                                1,
+                                0,
+                                4,
+                                7
+                            ],
+                            "5": [
+                                4,
+                                5,
+                                6,
+                                7
+                            ]
+                        },
+                        "facedata": {
+                            "0": {},
+                            "1": {},
+                            "2": {},
+                            "3": {},
+                            "4": {},
+                            "5": {}
+                        },
+                        "max_face": 5,
+                        "max_vertex": 7,
+                        "vertex": {
+                            "0": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 1.6
+                            },
+                            "1": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 1.6
+                            },
+                            "2": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 1.6
+                            },
+                            "3": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 1.6
+                            },
+                            "4": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 2.0
+                            },
+                            "5": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 2.0
+                            },
+                            "6": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 2.0
+                            },
+                            "7": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 2.0
+                            }
+                        }
+                    },
+                    "dtype": "compas.datastructures/Mesh",
+                    "guid": "bc813c18-4f23-4c3c-bbbb-4f407d3c82ae",
+                    "inheritance": [],
+                    "name": "Box"
+                },
+                "group": "block",
+                "is_support": false,
+                "material": {
+                    "data": {
+                        "Ecm": null,
+                        "density": 2400.0,
+                        "fck": null,
+                        "ft": null,
+                        "name": "Stone",
+                        "poisson": 0.2
+                    },
+                    "dtype": "compas_dem.material/Stone",
+                    "guid": "9516caef-5fa9-49a0-b4c1-5084b1ca6cfb"
+                },
+                "name": "Block",
+                "node": 4,
+                "region": 4
+            },
+            {
+                "element_guid": "c8ea518b-c4c9-42bc-a260-5d7997adb111",
+                "geometry": {
+                    "data": {
+                        "attributes": {},
+                        "default_edge_attributes": {},
+                        "default_face_attributes": {},
+                        "default_vertex_attributes": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": 0.0
+                        },
+                        "edgedata": {},
+                        "face": {
+                            "0": [
+                                0,
+                                1,
+                                2,
+                                3
+                            ],
+                            "1": [
+                                0,
+                                3,
+                                5,
+                                4
+                            ],
+                            "2": [
+                                3,
+                                2,
+                                6,
+                                5
+                            ],
+                            "3": [
+                                2,
+                                1,
+                                7,
+                                6
+                            ],
+                            "4": [
+                                1,
+                                0,
+                                4,
+                                7
+                            ],
+                            "5": [
+                                4,
+                                5,
+                                6,
+                                7
+                            ]
+                        },
+                        "facedata": {
+                            "0": {},
+                            "1": {},
+                            "2": {},
+                            "3": {},
+                            "4": {},
+                            "5": {}
+                        },
+                        "max_face": 5,
+                        "max_vertex": 7,
+                        "vertex": {
+                            "0": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 2.0
+                            },
+                            "1": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 2.0
+                            },
+                            "2": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 2.0
+                            },
+                            "3": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 2.0
+                            },
+                            "4": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 2.4
+                            },
+                            "5": {
+                                "x": 0.4,
+                                "y": 0.0,
+                                "z": 2.4
+                            },
+                            "6": {
+                                "x": 0.4,
+                                "y": 0.4,
+                                "z": 2.4
+                            },
+                            "7": {
+                                "x": 0.0,
+                                "y": 0.4,
+                                "z": 2.4
+                            }
+                        }
+                    },
+                    "dtype": "compas.datastructures/Mesh",
+                    "guid": "07f08654-3852-444e-a309-69251832d3f9",
+                    "inheritance": [],
+                    "name": "Box"
+                },
+                "group": "block",
+                "is_support": false,
+                "material": {
+                    "data": {
+                        "Ecm": null,
+                        "density": 2400.0,
+                        "fck": null,
+                        "ft": null,
+                        "name": "Stone",
+                        "poisson": 0.2
+                    },
+                    "dtype": "compas_dem.material/Stone",
+                    "guid": "9516caef-5fa9-49a0-b4c1-5084b1ca6cfb"
+                },
+                "name": "Block",
+                "node": 5,
+                "region": 5
+            }
+        ],
+        "boundary_conditions": [
+            {
+                "data": {
+                    "body_forces": [],
+                    "displacements": [],
+                    "g": 9.81,
+                    "name": "gravity",
+                    "point_loads": [],
+                    "surface_loads": []
+                },
+                "dtype": "compas_dem.problem/BoundaryConditionGroup",
+                "guid": "ff08d530-ca70-454c-9685-bb2028a266b7",
+                "name": "gravity"
+            }
+        ],
+        "contact_block_pair_overrides": [],
+        "contact_properties": {
+            "data": {
+                "contact_model": {
+                    "data": {
+                        "c": 0.0,
+                        "mu": 0.6,
+                        "name": "MohrCoulomb",
+                        "phi": 30.96375653207352,
+                        "t_c": null
+                    },
+                    "dtype": "compas_dem.interactions/MohrCoulomb",
+                    "guid": "6215282e-f80f-465e-9f50-7b3d19c71a49"
+                },
+                "joint_model": {
+                    "data": {
+                        "kn": 1000000000.0,
+                        "kt": 500000000.0,
+                        "name": "JointModel"
+                    },
+                    "dtype": "compas_dem.interactions/JointModel",
+                    "guid": "dc2b384c-ac7b-4cd0-9fe3-495c274e3de8"
+                },
+                "name": "ContactProperties"
+            },
+            "dtype": "compas_dem.interactions/ContactProperties",
+            "guid": "afba41c0-4ae4-47c9-9afc-0cb5a7162335"
+        },
+        "contact_property_overrides": [],
+        "entity_map": {
+            "data": {
+                "blocks": [
+                    {
+                        "element_guid": "189c7342-ba94-4862-b1f7-056bd0c9982a",
+                        "node": 0,
+                        "region": 0
+                    },
+                    {
+                        "element_guid": "b6befa69-a06d-43b6-b6ff-f2eb111fdd0e",
+                        "node": 1,
+                        "region": 1
+                    },
+                    {
+                        "element_guid": "c2fe9354-9c8f-4916-9e21-ae586de1f78e",
+                        "node": 2,
+                        "region": 2
+                    },
+                    {
+                        "element_guid": "ae967f9a-b4a5-4695-99d9-166e556c281a",
+                        "node": 3,
+                        "region": 3
+                    },
+                    {
+                        "element_guid": "efde773c-47ec-4cae-ad7e-71663c172984",
+                        "node": 4,
+                        "region": 4
+                    },
+                    {
+                        "element_guid": "c8ea518b-c4c9-42bc-a260-5d7997adb111",
+                        "node": 5,
+                        "region": 5
+                    }
+                ],
+                "edges": [
+                    {
+                        "contact_ids": [],
+                        "edge": [
+                            0,
+                            1
+                        ],
+                        "element_guids": [
+                            "189c7342-ba94-4862-b1f7-056bd0c9982a",
+                            "b6befa69-a06d-43b6-b6ff-f2eb111fdd0e"
+                        ],
+                        "regions": [
+                            0,
+                            1
+                        ],
+                        "source": "model"
+                    },
+                    {
+                        "contact_ids": [],
+                        "edge": [
+                            1,
+                            2
+                        ],
+                        "element_guids": [
+                            "b6befa69-a06d-43b6-b6ff-f2eb111fdd0e",
+                            "c2fe9354-9c8f-4916-9e21-ae586de1f78e"
+                        ],
+                        "regions": [
+                            1,
+                            2
+                        ],
+                        "source": "model"
+                    },
+                    {
+                        "contact_ids": [],
+                        "edge": [
+                            2,
+                            3
+                        ],
+                        "element_guids": [
+                            "c2fe9354-9c8f-4916-9e21-ae586de1f78e",
+                            "ae967f9a-b4a5-4695-99d9-166e556c281a"
+                        ],
+                        "regions": [
+                            2,
+                            3
+                        ],
+                        "source": "model"
+                    },
+                    {
+                        "contact_ids": [],
+                        "edge": [
+                            3,
+                            4
+                        ],
+                        "element_guids": [
+                            "ae967f9a-b4a5-4695-99d9-166e556c281a",
+                            "efde773c-47ec-4cae-ad7e-71663c172984"
+                        ],
+                        "regions": [
+                            3,
+                            4
+                        ],
+                        "source": "model"
+                    },
+                    {
+                        "contact_ids": [],
+                        "edge": [
+                            4,
+                            5
+                        ],
+                        "element_guids": [
+                            "efde773c-47ec-4cae-ad7e-71663c172984",
+                            "c8ea518b-c4c9-42bc-a260-5d7997adb111"
+                        ],
+                        "regions": [
+                            4,
+                            5
+                        ],
+                        "source": "model"
+                    }
+                ],
+                "name": "benchmark-stack entity map",
+                "schema_version": 2,
+                "vertices": [
+                    {
+                        "gridpoint": null,
+                        "node": 0,
+                        "vertex": 0,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 0,
+                        "vertex": 1,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            0.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 0,
+                        "vertex": 2,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            0.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 0,
+                        "vertex": 3,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 0,
+                        "vertex": 4,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            0.4
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 0,
+                        "vertex": 5,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            0.4
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 0,
+                        "vertex": 6,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            0.4
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 0,
+                        "vertex": 7,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            0.4
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 1,
+                        "vertex": 0,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            0.4000000000000001
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 1,
+                        "vertex": 1,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            0.4000000000000001
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 1,
+                        "vertex": 2,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            0.4000000000000001
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 1,
+                        "vertex": 3,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            0.4000000000000001
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 1,
+                        "vertex": 4,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            0.8
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 1,
+                        "vertex": 5,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            0.8
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 1,
+                        "vertex": 6,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            0.8
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 1,
+                        "vertex": 7,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            0.8
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 2,
+                        "vertex": 0,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            0.8
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 2,
+                        "vertex": 1,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            0.8
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 2,
+                        "vertex": 2,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            0.8
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 2,
+                        "vertex": 3,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            0.8
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 2,
+                        "vertex": 4,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            1.2000000000000002
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 2,
+                        "vertex": 5,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            1.2000000000000002
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 2,
+                        "vertex": 6,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            1.2000000000000002
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 2,
+                        "vertex": 7,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            1.2000000000000002
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 3,
+                        "vertex": 0,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            1.2000000000000002
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 3,
+                        "vertex": 1,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            1.2000000000000002
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 3,
+                        "vertex": 2,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            1.2000000000000002
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 3,
+                        "vertex": 3,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            1.2000000000000002
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 3,
+                        "vertex": 4,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            1.6
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 3,
+                        "vertex": 5,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            1.6
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 3,
+                        "vertex": 6,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            1.6
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 3,
+                        "vertex": 7,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            1.6
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 4,
+                        "vertex": 0,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            1.6
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 4,
+                        "vertex": 1,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            1.6
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 4,
+                        "vertex": 2,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            1.6
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 4,
+                        "vertex": 3,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            1.6
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 4,
+                        "vertex": 4,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            2.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 4,
+                        "vertex": 5,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            2.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 4,
+                        "vertex": 6,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            2.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 4,
+                        "vertex": 7,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            2.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 5,
+                        "vertex": 0,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            2.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 5,
+                        "vertex": 1,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            2.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 5,
+                        "vertex": 2,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            2.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 5,
+                        "vertex": 3,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            2.0
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 5,
+                        "vertex": 4,
+                        "xyz": [
+                            0.0,
+                            0.0,
+                            2.4
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 5,
+                        "vertex": 5,
+                        "xyz": [
+                            0.4,
+                            0.0,
+                            2.4
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 5,
+                        "vertex": 6,
+                        "xyz": [
+                            0.4,
+                            0.4,
+                            2.4
+                        ]
+                    },
+                    {
+                        "gridpoint": null,
+                        "node": 5,
+                        "vertex": 7,
+                        "xyz": [
+                            0.0,
+                            0.4,
+                            2.4
+                        ]
+                    }
+                ]
+            },
+            "dtype": "compas_3dec.analysis/ThreeDECEntityMap",
+            "guid": "4b883ba5-432c-4a17-9b28-224ed74a4480",
+            "name": "benchmark-stack entity map"
+        },
+        "interfaces": [
+            {
+                "contacts": [
+                    {
+                        "data": {
+                            "forces": [],
+                            "frame": {
+                                "data": {
+                                    "point": [
+                                        0.20000000000000004,
+                                        0.20000000000000004,
+                                        0.3999999999999999
+                                    ],
+                                    "xaxis": [
+                                        0.0,
+                                        1.0,
+                                        0.0
+                                    ],
+                                    "yaxis": [
+                                        -1.0,
+                                        0.0,
+                                        -0.0
+                                    ]
+                                },
+                                "dtype": "compas.geometry/Frame",
+                                "guid": "3f9fab69-5cd8-407e-bca6-febdb6eafc7e"
+                            },
+                            "holes": null,
+                            "mesh": null,
+                            "name": "FrictionContact",
+                            "points": [
+                                {
+                                    "data": [
+                                        0.0,
+                                        0.0,
+                                        0.39999999999999997
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "40679964-2f04-4ae3-96f5-7c8f7bec17c0"
+                                },
+                                {
+                                    "data": [
+                                        0.0,
+                                        0.4,
+                                        0.39999999999999997
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "36dce592-e837-4927-9470-340f059a0e30"
+                                },
+                                {
+                                    "data": [
+                                        0.4,
+                                        0.4,
+                                        0.39999999999999997
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "b324ba3f-784a-46ad-970a-753fa012550f"
+                                },
+                                {
+                                    "data": [
+                                        0.4,
+                                        0.0,
+                                        0.39999999999999997
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "0a4ca010-ebfc-448d-a67f-a88a83846c75"
+                                }
+                            ],
+                            "size": 0.16000000000000003
+                        },
+                        "dtype": "compas_dem.interactions/FrictionContact",
+                        "guid": "678faa15-cdad-41b3-9e9d-84005d125619"
+                    }
+                ],
+                "edge": [
+                    0,
+                    1
+                ],
+                "regions": [
+                    0,
+                    1
+                ]
+            },
+            {
+                "contacts": [
+                    {
+                        "data": {
+                            "forces": [],
+                            "frame": {
+                                "data": {
+                                    "point": [
+                                        0.20000000000000004,
+                                        0.20000000000000004,
+                                        0.7999999999999998
+                                    ],
+                                    "xaxis": [
+                                        0.0,
+                                        1.0,
+                                        0.0
+                                    ],
+                                    "yaxis": [
+                                        -1.0,
+                                        0.0,
+                                        -0.0
+                                    ]
+                                },
+                                "dtype": "compas.geometry/Frame",
+                                "guid": "b056cd47-262d-4f6a-ad91-00a6d157ced7"
+                            },
+                            "holes": null,
+                            "mesh": null,
+                            "name": "FrictionContact",
+                            "points": [
+                                {
+                                    "data": [
+                                        0.0,
+                                        0.0,
+                                        0.7999999999999999
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "77ce2653-b087-418d-8948-1f817865a54a"
+                                },
+                                {
+                                    "data": [
+                                        0.0,
+                                        0.4,
+                                        0.7999999999999999
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "a7f7c590-b91f-45b3-b266-98072e348c05"
+                                },
+                                {
+                                    "data": [
+                                        0.4,
+                                        0.4,
+                                        0.7999999999999999
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "0e35ffd4-2239-46bd-b962-3a0521dcef1a"
+                                },
+                                {
+                                    "data": [
+                                        0.4,
+                                        0.0,
+                                        0.7999999999999999
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "6bd1b8fe-75f4-4fb1-acb3-887ebd71a2ad"
+                                }
+                            ],
+                            "size": 0.16000000000000003
+                        },
+                        "dtype": "compas_dem.interactions/FrictionContact",
+                        "guid": "d156dd2f-e248-4783-8db9-02f1e570092b"
+                    }
+                ],
+                "edge": [
+                    1,
+                    2
+                ],
+                "regions": [
+                    1,
+                    2
+                ]
+            },
+            {
+                "contacts": [
+                    {
+                        "data": {
+                            "forces": [],
+                            "frame": {
+                                "data": {
+                                    "point": [
+                                        0.20000000000000004,
+                                        0.20000000000000004,
+                                        1.2000000000000002
+                                    ],
+                                    "xaxis": [
+                                        0.0,
+                                        1.0,
+                                        0.0
+                                    ],
+                                    "yaxis": [
+                                        -1.0,
+                                        0.0,
+                                        -0.0
+                                    ]
+                                },
+                                "dtype": "compas.geometry/Frame",
+                                "guid": "826e6dd7-5ad9-4ba6-ae69-0f65228d9285"
+                            },
+                            "holes": null,
+                            "mesh": null,
+                            "name": "FrictionContact",
+                            "points": [
+                                {
+                                    "data": [
+                                        0.0,
+                                        0.0,
+                                        1.2000000000000002
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "884c53b2-98d9-4453-984a-e9fd92c0292b"
+                                },
+                                {
+                                    "data": [
+                                        0.0,
+                                        0.4,
+                                        1.2000000000000002
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "ce10b3b3-de80-45cd-af81-d25d210d2f9d"
+                                },
+                                {
+                                    "data": [
+                                        0.4,
+                                        0.4,
+                                        1.2000000000000002
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "0a51ba3d-c684-4a92-94f0-5c0172d81f6d"
+                                },
+                                {
+                                    "data": [
+                                        0.4,
+                                        0.0,
+                                        1.2000000000000002
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "61c175bd-ab4e-4a58-bc1d-95576c6a2a69"
+                                }
+                            ],
+                            "size": 0.16000000000000003
+                        },
+                        "dtype": "compas_dem.interactions/FrictionContact",
+                        "guid": "764ccf65-0249-4f75-b52d-563fb8c1d8fa"
+                    }
+                ],
+                "edge": [
+                    2,
+                    3
+                ],
+                "regions": [
+                    2,
+                    3
+                ]
+            },
+            {
+                "contacts": [
+                    {
+                        "data": {
+                            "forces": [],
+                            "frame": {
+                                "data": {
+                                    "point": [
+                                        0.20000000000000004,
+                                        0.20000000000000004,
+                                        1.5999999999999996
+                                    ],
+                                    "xaxis": [
+                                        0.0,
+                                        1.0,
+                                        0.0
+                                    ],
+                                    "yaxis": [
+                                        -1.0,
+                                        0.0,
+                                        -0.0
+                                    ]
+                                },
+                                "dtype": "compas.geometry/Frame",
+                                "guid": "78ba9582-b9b3-47dd-854c-6b2d5b340d1b"
+                            },
+                            "holes": null,
+                            "mesh": null,
+                            "name": "FrictionContact",
+                            "points": [
+                                {
+                                    "data": [
+                                        0.0,
+                                        0.0,
+                                        1.5999999999999999
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "37bc36df-340e-43af-bf11-6149d79a8d9e"
+                                },
+                                {
+                                    "data": [
+                                        0.0,
+                                        0.4,
+                                        1.5999999999999999
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "9de4eaba-b341-41b1-96ed-a923517b6b79"
+                                },
+                                {
+                                    "data": [
+                                        0.4,
+                                        0.4,
+                                        1.5999999999999999
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "dde2cded-60de-4e6e-8876-5e3e2e04b282"
+                                },
+                                {
+                                    "data": [
+                                        0.4,
+                                        0.0,
+                                        1.5999999999999999
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "7948942f-80be-4074-94cf-e77d56ff42e3"
+                                }
+                            ],
+                            "size": 0.16000000000000003
+                        },
+                        "dtype": "compas_dem.interactions/FrictionContact",
+                        "guid": "fac12200-007d-4909-a4ff-ff54253db0c1"
+                    }
+                ],
+                "edge": [
+                    3,
+                    4
+                ],
+                "regions": [
+                    3,
+                    4
+                ]
+            },
+            {
+                "contacts": [
+                    {
+                        "data": {
+                            "forces": [],
+                            "frame": {
+                                "data": {
+                                    "point": [
+                                        0.20000000000000004,
+                                        0.20000000000000004,
+                                        2.0
+                                    ],
+                                    "xaxis": [
+                                        0.0,
+                                        1.0,
+                                        0.0
+                                    ],
+                                    "yaxis": [
+                                        -1.0,
+                                        0.0,
+                                        -0.0
+                                    ]
+                                },
+                                "dtype": "compas.geometry/Frame",
+                                "guid": "80b2a80f-2313-4545-99fe-1b6b4c50a0bb"
+                            },
+                            "holes": null,
+                            "mesh": null,
+                            "name": "FrictionContact",
+                            "points": [
+                                {
+                                    "data": [
+                                        0.0,
+                                        0.0,
+                                        2.0
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "875846b3-e8b1-472f-9ad8-c926e748e610"
+                                },
+                                {
+                                    "data": [
+                                        0.0,
+                                        0.4,
+                                        2.0
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "c24e225c-938d-4433-848b-bc02ce2f0a04"
+                                },
+                                {
+                                    "data": [
+                                        0.4,
+                                        0.4,
+                                        2.0
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "47189dfb-d0cb-47da-8069-03d811e5a2b3"
+                                },
+                                {
+                                    "data": [
+                                        0.4,
+                                        0.0,
+                                        2.0
+                                    ],
+                                    "dtype": "compas.geometry/Point",
+                                    "guid": "c5f9b3f7-975f-4c35-a6a0-e4fabda952b8"
+                                }
+                            ],
+                            "size": 0.16000000000000003
+                        },
+                        "dtype": "compas_dem.interactions/FrictionContact",
+                        "guid": "2797bc74-d3e3-4555-956d-c3f501a4ff83"
+                    }
+                ],
+                "edge": [
+                    4,
+                    5
+                ],
+                "regions": [
+                    4,
+                    5
+                ]
+            }
+        ],
+        "model_id": "e5640b52-672b-4f93-a8f3-38001c148607",
+        "name": "benchmark-stack",
+        "problem_id": "70835841-fd39-4521-bde6-9e8f1f56d4f7",
+        "schema_version": 3,
+        "solver_configuration": {
+            "name": "3DEC",
+            "parameters": {
+                "gravity_steps": 10,
+                "gridpoint_tolerance": 1e-06,
+                "ratio": 1e-05,
+                "ratio_keyword": "ratio-local",
+                "stages": null,
+                "time": 1.0,
+                "version": "7.0"
+            }
+        },
+        "source": "compas_dem",
+        "stages": [],
+        "supports": [
+            0
+        ]
+    },
+    "dtype": "compas_3dec.analysis/ThreeDECAnalysis",
+    "guid": "335b19a5-8282-4dbc-9c14-397c30976ab8",
+    "name": "benchmark-stack"
+}

@@ -18,13 +18,36 @@ from compas_dem.models import BlockModel
 from compas_dem.problem import Problem
 from compas_dem.problem import Solver
 from compas_dem.viewer import DEMViewer
-
+import compas.geometry as cg
+from compas.datastructures import Mesh
+from compas_viewer.viewer import Viewer
 # =============================================================================
 # Import
 # =============================================================================
 
-model: BlockModel = compas.json_load(pathlib.Path(__file__).parent.parent.parent / "data" / "dome.json")  # type: ignore
 
+file = "/Users/belmoussa/My_Files/Other_libs/Applications/meshes.json"
+meshes = compas.json_load(file)
+model = BlockModel()
+
+for mesh in meshes:
+    model.add_block_from_mesh(mesh)
+for block in model.elements():
+    if block.point[2] < 0.4:
+        block.is_support = True
+
+# =============================================================================
+# Output
+# =============================================================================
+
+Here = pathlib.Path(__file__).parent
+compas.json_dump(model, Here / "half_dome_saint_bartalo.json")
+model.compute_contacts()
+viewer = DEMViewer(model)
+viewer.setup()
+viewer.config.renderer.show_grid = False
+viewer.show()
+raise
 # =============================================================================
 # Material
 # =============================================================================

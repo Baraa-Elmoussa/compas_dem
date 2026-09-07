@@ -1,0 +1,44 @@
+{
+  "analysis_id": "4d602a6a-b6fe-4047-aa29-7bccb7813278",
+  "commands": [
+    [
+      "C:\\Program Files\\Itasca\\3DEC700\\exe64\\3dec700_console.exe",
+      "analysis.dat"
+    ]
+  ],
+  "created_at": "2026-09-07T12:50:38Z",
+  "files": {
+    "analysis": "analysis.json",
+    "deck": "analysis.dat",
+    "final_results": "results-final.txt",
+    "geometry": "geometry.dat",
+    "gravity_results": "results-gravity.txt",
+    "initial_results": "results-initial.txt",
+    "raw_results": "raw-results.json",
+    "stages": "stages.json"
+  },
+  "model_id": "120b36b4-2cb9-4d4a-9eb2-57851d3cc253",
+  "problem_id": "99aa1143-73dc-4017-b89a-316f7adaf7a1",
+  "result_states": {
+    "final": {
+      "json": "raw-results.json",
+      "raw": "results-final.txt",
+      "save": "gravity.sav"
+    },
+    "gravity": {
+      "json": "results-gravity.json",
+      "raw": "results-gravity.txt",
+      "save": "gravity.sav"
+    },
+    "initial": {
+      "json": "results-initial.json",
+      "raw": "results-initial.txt",
+      "save": "initial.sav"
+    }
+  },
+  "run_id": "3DEC_arch_gravity_20260907-145038",
+  "schema_version": 1,
+  "solver": "3DEC",
+  "solver_version": "7.0",
+  "status": "running"
+}
